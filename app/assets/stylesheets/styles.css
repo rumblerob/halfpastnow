@@ -1,0 +1,46 @@
+
+#event_list table {
+        border-collapse: collapse;
+}
+
+#event_list table tr td {
+        padding: 5px;
+        vertical-align: top;
+}
+
+#event_list .list_image {
+  width:        60px;
+  height:       70px;
+}
+
+#event_list .list_description {
+  width:        60%;
+}
+
+#event_list .list_description dl {
+        margin: 0;
+}
+
+#event_list .list_description dt {
+	color:        #244;
+	font-weight:  bold;
+	font-size:    larger;
+}
+
+#event_list .list_description dd {
+        margin: 0;
+}
+
+#event_list .list_actions {
+  font-size:    x-small;
+  text-align:   right;
+  padding-left: 1em;
+}
+
+#event_list .list_line_even {
+  background:   #e0f8f8;
+}
+
+#event_list .list_line_odd {
+  background:   #f8d088;
+}

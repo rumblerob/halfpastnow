@@ -1,0 +1,34 @@
+<div id="event_list">
+  <h1>Events</h1>
+
+  <table>
+  <% @events.each do |event| %>
+    <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+
+      <td>
+        <%= image_tag(event.image_url, :class => 'list_image') %>
+      </td>
+
+      <td class="list_description">
+        <dl>
+          <dt><%= event.title %></dt>
+          <dd><%= truncate(strip_tags(event.description),
+                 :length => 80) %></dd>
+        </dl>
+      </td>
+
+      <td class="list_actions">
+        <%= link_to 'Show', event %><br/>
+        <%= link_to 'Edit', edit_event_path(event) %><br/>
+        <%= link_to 'Destroy', event, 
+                    :confirm => 'Are you sure?',
+                    :method => :delete %>
+      </td>
+    </tr>
+  <% end %>
+  </table>
+</div>
+
+<br />
+
+<%= link_to 'New event', new_event_path %>
