@@ -1,33 +1,65 @@
-<div id="event_list">
-  <h1>Events</h1>
+<div id="content">
+	
+	<div class="sidebar">
+		<div class="inner">
+			<h3>filter events by</h3>
+			<div class="filter date">
+				<h5>date</h5>
+				<input type="text" class="start date" placeholder="now"/> to <input type="text" class="end date" placeholder="forever"/>
+			</div>
+			<div class="filter day">
+				<h5>day of the week</h5>
+				<span>mon</span><span>tue</span><span>wed</span><span>thu</span><span>fri</span><span>sat</span><span>sun</span>
+			</div>
+			<div class="filter distance">
+				<h5>distance</h5>
+				<span>everywhere</span> 
+			</div>
+			<div class="filter price">
+				<h5>price</h5>
+				<span>free</span><span>$</span><span>$$</span><span>$$$</span><span>$$$$</span>
+			</div>
+			<div class="filter tags">
+				<h5>tags</h5>
+				<input type="text" class="tags" />
+				<div class="tag-library"></div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div class="main">
+		<div class="inner">
+			<div class="header">9000+ events around <span>Austin</span></div>
+			<ul class="events">
+	  		<% @events.each do |event| %>
+	    	<li>
+				<div class="vote">
+					<img src="/assets/upvote7.png" class="upvote" />
+					<img src="/assets/downvote7.png" class="downvote" />
+				</div>
+				<div class="when sun">
+					<div class="mod">EVERY</div>
+					<div class="day">SUN</div>
+					<div class="time">O5:OOpm</div>
+				</div>
+				<div class="one">
+					<span class="name"><%= event.title %></span>
+					<span class="venue">SOMEWHERE TODO;</span>
+					<div class="description"><%= truncate(strip_tags(event.description),
+			                 :length => 300) %></div>
+				</div>
+			</li>
+	        <!--<%= link_to 'Show', event %><br/>
+	        <%= link_to 'Edit', edit_event_path(event) %><br/>
+	        <%= link_to 'Destroy', event, 
+	                    :confirm => 'Are you sure?',
+	                    :method => :delete %>-->
+	  		<% end %>
 
-  <table>
-  <% @events.each do |event| %>
-    <tr class="<%= cycle('list_line_odd', 'list_line_even') %>">
+	</div>
 
-      <td>
-      </td>
-
-      <td class="list_description">
-        <dl>
-          <dt><%= event.title %></dt>
-          <dd><%= truncate(strip_tags(event.description),
-                 :length => 80) %></dd>
-        </dl>
-      </td>
-
-      <td class="list_actions">
-        <%= link_to 'Show', event %><br/>
-        <%= link_to 'Edit', edit_event_path(event) %><br/>
-        <%= link_to 'Destroy', event, 
-                    :confirm => 'Are you sure?',
-                    :method => :delete %>
-      </td>
-    </tr>
-  <% end %>
-  </table>
 </div>
-
 <br />
 
 <%= link_to 'New event', new_event_path %>

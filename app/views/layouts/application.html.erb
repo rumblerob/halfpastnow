@@ -4,9 +4,32 @@
   <title>Eventspointer</title>
   <%= stylesheet_link_tag    "application" %>
   <%= javascript_include_tag "application" %>
+  <%= javascript_include_tag "styles" %>
   <%= csrf_meta_tags %>
 </head>
 <body>
+
+<div id="header">
+	<div class="one">
+		<img class="logo" src="/assets/halfpastnow.png" />
+		<div class="menu-element">about us</div>
+		<div class="menu-element">blog</div>
+		<div class="menu-element">contact us</div>
+		<div class="menu-element right">login / signup</div>
+	</div>
+	<div class="two">
+		<div class="inner">
+
+			<div class="search">
+				find
+				<input type="text" class="terms" placeholder="stuff to do"/>
+				around
+				<input type="text" class="location" placeholder="a point in space"/>
+				<button><img src="/assets/search2.png" /></button> 
+			</div>
+		</div>
+	</div>
+</div>
 
 <%= yield %>
 
