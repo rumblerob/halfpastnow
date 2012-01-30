@@ -32,6 +32,9 @@
 		<div class="inner">
 			<div class="header">9000+ events around <span>Austin</span></div>
 			<ul class="events">
+			<% # TODO: put this stuff in the controller eventually & merge date + time fields for event. %>
+			<% now = DateTime.now.change(:hour => 0) %>
+			<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
 	  		<% @events.each do |event| %>
 	    	<li>
 				<div class="vote">
@@ -39,13 +42,13 @@
 					<img src="/assets/downvote7.png" class="downvote" />
 				</div>
 				<div class="when sun">
-					<div class="mod">EVERY</div>
-					<div class="day">SUN</div>
-					<div class="time">O5:OOpm</div>
+					<div class="mod"><%= (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %></div>
+					<div class="day"><%= day_of_week[event.date.wday] %></div>
+					<div class="time"><%= event.time.strftime("%I:%M%P") %></div>
 				</div>
 				<div class="one">
 					<span class="name"><%= event.title %></span>
-					<span class="venue">SOMEWHERE TODO;</span>
+					<span class="venue"><%= event.date.wday %></span>
 					<div class="description"><%= truncate(strip_tags(event.description),
 			                 :length => 300) %></div>
 				</div>
