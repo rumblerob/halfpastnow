@@ -20,6 +20,10 @@
     <%= f.text_area :description %>
   </div>
   <div class="field">
+    <%= f.label :location %><br />
+    <%= f.text_field :location %>
+  </div>
+  <div class="field">
     <%= f.label :image_url %><br />
     <%= f.text_field :image_url %>
   </div>
@@ -34,6 +38,14 @@
   <div class="field">
     <%= f.label :time %><br />
     <%= f.time_select :time %>
+  </div>
+  <div class="field">
+    <%= f.label :latitude %><br />
+    <%= f.text_field :latitude %>
+  </div>
+  <div class="field">
+    <%= f.label :longitude %><br />
+    <%= f.text_field :longitude %>
   </div>
   <div class="actions">
     <%= f.submit %>
