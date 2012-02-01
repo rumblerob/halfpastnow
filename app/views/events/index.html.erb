@@ -1,5 +1,16 @@
+<script type="text/javascript">
+	$(function() {
+			var event_id = <%= params[:event_id] || 0 %>;
+			var venue_id = <%= params[:venue_id] || 0 %>;
+			if(event_id != 0) {
+				modal({type: "event", id: event_id});
+			}
+			if(venue_id != 0) {
+				modal({type: "venue", id: venue_id});			
+			}
+	});
+</script>
 <div id="content">
-	
 	<div class="sidebar">
 		<div class="inner">
 			<h3>filter events by</h3>
@@ -45,7 +56,7 @@
 			<% now = DateTime.now.change(:hour => 0) %>
 			<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
 	  		<% @events.each do |event| %>
-	    	<li>
+	    	<li event_id="<%= event.id %>">
 				<div class="vote">
 					<img src="/assets/upvote7.png" class="upvote" />
 					<img src="/assets/downvote7.png" class="downvote" />
@@ -69,9 +80,24 @@
 	                    :method => :delete %>-->
 	  		<% end %>
 
+		</div>
 	</div>
-
+</div>
+<div class="event mode">
+	<div class="overlay"></div>
+	<div class="window">
+		<div class="inner">
+			<h1>event</h1>
+		</div>
+	</div>
+</div>
+<div class="venue mode">
+	<div class="overlay"></div>
+	<div class="window">
+		<div class="inner">
+			<h1>venue</h1>
+		</div>
+	</div>
 </div>
 <br />
-
 <%= link_to 'New event', new_event_path %>

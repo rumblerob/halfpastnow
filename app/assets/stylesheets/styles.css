@@ -370,8 +370,9 @@ H6
 	content: "  at ";
 	font-style: italic;
 }
-#content .main .inner .events LI .venue
+#content .main .inner .events LI .venue:hover
 {
+	text-decoration: underline;
 }
 #content .main .inner .events LI .description
 {
@@ -432,4 +433,28 @@ H6
 	width: 60px;
 	font-size: 15px;
 	font-variant: small-caps;
+}
+.mode {
+	display: none;	
+}
+.mode .overlay {
+	position:fixed;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	z-index:100;
+	background-color: rgba(252, 252, 252, 0.75);
+}
+.mode .window {
+	position:fixed;
+	opacity:1;
+	background-color: #ffffff;
+	/*box-shadow: 0 0 20px #000000;
+	border-radius: 4px;*/
+	z-index:101;
+	box-shadow: 0 0 1px rgba(0, 0, 0, 0.25), 0 1px 5px 3px rgba(0, 0, 0, 0.05), 0 5px 4px -3px rgba(0, 0, 0, 0.06);
+}
+.mode .window .inner {
+	margin:20px;
 }
