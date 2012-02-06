@@ -1,103 +1,147 @@
 <script type="text/javascript">
-	$(function() {
-			var event_id = <%= params[:event_id] || 0 %>;
-			var venue_id = <%= params[:venue_id] || 0 %>;
-			if(event_id != 0) {
-				modal({type: "event", id: event_id});
-			}
-			if(venue_id != 0) {
-				modal({type: "venue", id: venue_id});			
-			}
-	});
+  $(function() {
+      var event_id = <%= params[:event_id] || 0 %>;
+      var venue_id = <%= params[:venue_id] || 0 %>;
+      if(event_id != 0) {
+        modal({type: "event", id: event_id});
+      }
+      if(venue_id != 0) {
+        modal({type: "venue", id: venue_id});      
+      }
+  });
 </script>
-<div id="content">
-	<div class="sidebar">
-		<div class="inner">
-			<h3>filter events by</h3>
-			<div class="filter date">
-				<h5>date</h5>
-				<input type="text" class="start date" placeholder="now"/> to <input type="text" class="end date" placeholder="forever"/>
-			</div>
-			<div class="filter day">
-				<h5>day of the week</h5>
-				<span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span><span class="selected">sun</span>
-			</div>
-			<div class="filter distance">
-				<h5>distance</h5>
-				<div class="distances">
-					<div>
-						<span class="selected" val="0">everywhere</span>
-						<span val="0">everywhere</span>
-						<span val=".5">stumbling distance (&frac12; mi)</span>
-						<span val="1">walking distance (1 mi)</span>
-						<span val="2">biking distance (2 mi)</span>
-						<span val="5">driving distance (5 mi)</span>
-					</div>
-				</div>
-			</div>
-			<div class="filter price">
-				<h5>price</h5>
-				<span class="selected">free</span><span class="selected">$</span><span class="selected">$$</span><span class="selected">$$$</span><span class="selected">$$$$</span>
-			</div>
-			<div class="filter tags">
-				<h5>tags</h5>
-				<input type="text" class="tags" />
-				<div class="tag-library"></div>
-			</div>
-		</div>
+<div id="body">
+  <div id="header">
+    <div class="one">
+      <img class="logo" src="/assets/halfpastnow.png" />
+      <div class="menu-element">about us</div>
+      <div class="menu-element">blog</div>
+      <div class="menu-element">contact us</div>
+      <div class="menu-element right">login / signup</div>
+    </div>
+    <div class="two">
+      <div class="inner">
+	<div class="search">
+	  find
+	  <input type="text" class="terms" placeholder="stuff to do"/>
+	  around
+	  <input type="text" class="location" placeholder="a point in space"/>
+	  <button><img src="/assets/search2.png" /></button> 
 	</div>
-	
-	
-	<div class="main">
-		<div class="inner">
-			<div class="header">9000+ events around <span>Austin</span></div>
-			<ul class="events">
-			<% # TODO: put this stuff in the controller eventually & merge date + time fields for event. %>
-			<% now = DateTime.now.change(:hour => 0) %>
-			<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
-	  		<% @events.each do |event| %>
-	    	<li event_id="<%= event.id %>">
-				<div class="vote">
-					<img src="/assets/upvote7.png" class="upvote" />
-					<img src="/assets/downvote7.png" class="downvote" />
-				</div>
-				<div class="when sun">
-					<div class="mod"><%= (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %></div>
-					<div class="day"><%= day_of_week[event.date.wday] %></div>
-					<div class="time"><%= event.time.strftime("%I:%M%P") %></div>
-				</div>
-				<div class="one">
-					<span class="name"><%= event.title %></span>
-					<span class="venue"><%= event.location %></span>
-					<div class="description"><%= truncate(strip_tags(event.description),
-			                 :length => 300) %></div>
-				</div>
-			</li>
-	        <!--<%= link_to 'Show', event %><br/>
-	        <%= link_to 'Edit', edit_event_path(event) %><br/>
-	        <%= link_to 'Destroy', event, 
-	                    :confirm => 'Are you sure?',
-	                    :method => :delete %>-->
-	  		<% end %>
-
-		</div>
+      </div>
+    </div>
+  </div>
+  <div id="content">
+    <div class="sidebar">
+      <div class="inner">
+	<h3>filter events by</h3>
+	<div class="filter date">
+	  <h5>date</h5>
+	  <input type="text" class="start date" placeholder="now"/> to <input type="text" class="end date" placeholder="forever"/>
 	</div>
+	<div class="filter day">
+	  <h5>day of the week</h5>
+	  <span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span><span class="selected">sun</span>
+	</div>
+	<div class="filter distance">
+	  <h5>distance</h5>
+	  <div class="distances">
+	    <div>
+	      <span class="selected" val="0">everywhere</span>
+	      <span val="0">everywhere</span>
+	      <span val=".5">stumbling distance (&frac12; mi)</span>
+	      <span val="1">walking distance (1 mi)</span>
+	      <span val="2">biking distance (2 mi)</span>
+	      <span val="5">driving distance (5 mi)</span>
+	    </div>
+	  </div>
+	</div>
+	<div class="filter price">
+	  <h5>price</h5>
+	  <span class="selected">free</span><span class="selected">$</span><span class="selected">$$</span><span class="selected">$$$</span><span class="selected">$$$$</span>
+	</div>
+	<div class="filter tags">
+	  <h5>tags</h5>
+	  <input type="text" class="tags" />
+	  <div class="tag-library"></div>
+	</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="inner">
+	<div class="header">9000+ events around <span>Austin</span></div>
+	<ul class="events">
+	<% # TODO: put this stuff in the controller eventually & merge date + time fields for event. %>
+	<% now = DateTime.now.change(:hour => 0) %>
+	<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+	<% @events.each do |event| %>
+      <li event_id="<%= event.id %>">
+	  <div class="vote">
+	    <img src="/assets/upvote7.png" class="upvote" />
+	    <img src="/assets/downvote7.png" class="downvote" />
+	  </div>
+	  <div class="when sun">
+	    <div class="mod"><%= (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %></div>
+	    <div class="day"><%= day_of_week[event.date.wday] %></div>
+	    <div class="time"><%= event.time.strftime("%I:%M%P") %></div>
+	  </div>
+	  <div class="one">
+	    <span class="name"><%= event.title %></span>
+	    <a class="venue" linkto="venue" href="1"><%= event.location %></a>
+	    <div class="description"><%= truncate(strip_tags(event.description),
+	    :length => 300) %></div>
+	  </div>
+	</li>
+      <!--<%= link_to 'Show', event %><br/>
+      <%= link_to 'Edit', edit_event_path(event) %><br/>
+      <%= link_to 'Destroy', event, 
+      :confirm => 'Are you sure?',
+      :method => :delete %>-->
+	<% end %>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="event mode">
-	<div class="overlay"></div>
-	<div class="window">
-		<div class="inner">
-			<h1>event</h1>
-		</div>
+  <div class="overlay">
+    <div class="window">
+      <div class="h1under left"></div>
+      <div class="h1under right"></div>
+      <h1>105th International Kite Day</h1>
+      <div class="inner">
+	<img src="http://maps.googleapis.com/maps/api/staticmap?size=430x170&amp;zoom=15&amp;maptype=roadmap&amp;markers=color:red%7CZilker+Park&amp;style=feature:all|hue:0x000001|saturation:-50&amp;&amp;sensor=false" style="float: left;">
+	<div class="details">	
+	  <div class="time one">1:00pm to 7:00pm</div>
+	  <div class="time two">Friday, May 13th</div>
+	  <br />
+	  <div class="venue"><a linkto="venue" href="1">Zilker Park</a></div>
+	  <div class="address one">2100 Barton Springs Road</div>
+	  <div class="address two">Austin, TX 78704</div>
+	  <br />
+	  <div class="price"><strong>Price:</strong> Free</div>
 	</div>
+	<ul class="menu">
+	  <li class="selected">description</li>
+	  <li>details</li>
+	  <li>gallery</li>
+	  <li>comments <strong>(5)</strong></li>
+	</ul>
+	<div class="description">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to heaven, we were all going direct the other way - in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.</div>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="venue mode">
-	<div class="overlay"></div>
-	<div class="window">
-		<div class="inner">
-			<h1>venue</h1>
-		</div>
-	</div>
+  <div class="overlay">
+    <div class="window">
+      <div class="h1under left"></div>
+      <div class="h1under right"></div>
+      <h1>Something Venue Something Something</h1>
+      <div class="inner">
+	<a class="internal" linkto="event" href="1">event link</a>
+      </div>
+    </div>
+  </div>
 </div>
 <br />
 <%= link_to 'New event', new_event_path %>
