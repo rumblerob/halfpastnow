@@ -75,7 +75,7 @@
 	<% now = DateTime.now.change(:hour => 0) %>
 	<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
 	<% @events.each do |event| %>
-      <li event_id="<%= event.id %>">
+      <li href="<%= event.id %>" linkto="event">
 	  <div class="vote">
 	    <img src="/assets/upvote7.png" class="upvote" />
 	    <img src="/assets/downvote7.png" class="downvote" />

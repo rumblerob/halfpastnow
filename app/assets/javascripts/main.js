@@ -1,20 +1,14 @@
-var history_counter = 0;
+window.addEventListener("popstate", function(e) {
+  //console.log(e);
+  var query = e.target.location.search;
+  if(query !== "") {
+    modal(parsequery(query));
+  } else {
+    demodal();
+  }
+});
 
 $(function() {
-  console.log(history);
-  window.addEventListener("popstate", function(e) {
-    history_counter--;
-    var query = e.target.location.search;
-    if(query != "") {
-      console.log(query);
-      console.log(parsequery(query));
-      modal(parsequery(query));
-    } else {
-      demodal();
-    }
-      
-    console.log(e);
-  });
   
   $('#content .sidebar .inner .filter.distance .distances .selected').click(function(event) {
       event.stopPropagation();
@@ -41,16 +35,8 @@ $(function() {
 
   $('#content .sidebar .inner .filter.date .date ').datepicker();
 
-  $('#content .main .events li').click(function() {
-    modal({type: "event", id: $(this).attr("event_id")});
-  });
-
-  $('#content .main .events li .venue').click(function(event) {
-    event.stopPropagation();
-    modal({ type: "venue", id: 1});
-  });
-
-  $('.mode .overlay').click(function() {    
+  $('.mode .overlay').click(function() {   
+    history.pushState({}, "main mode", "/events");
     demodal();
   });
 
@@ -58,8 +44,13 @@ $(function() {
     event.stopPropagation();
   });
   
-  $('a[linkto]').click(function() {
-    modal({type:$(this).attr("linkto"), id: $(this).attr("href")});
+  $('[linkto]').click(function(event) {
+    var thing = {type:$(this).attr("linkto"), id: $(this).attr("href")};
+    history.pushState(thing, thing.type + " mode", "?" + thing.type + "_id=" + thing.id);
+    if($(this).is("#content .main .events li .venue")) {
+       event.stopPropagation();
+    }
+    modal(thing);
     return false;
   });
 });
@@ -94,6 +85,7 @@ function backAll() {
 function modal(thing) {
   if(!thing) {
     $('.mode').hide();
+    return;
   }
 
   $('.mode').hide();
