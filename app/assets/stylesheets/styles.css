@@ -513,43 +513,56 @@ html,body {
   right: -15px;
 }
 
-.mode.event .window .details {
+.mode .window .details {
   font-size: 13px; float: right; padding: 10px; width: 190px; height: 150px; background: none repeat scroll 0pt 0pt rgb(221, 221, 238);
 }
 
-.mode.event .window .description {
-  clear: both; padding: 6px 0 20px; line-height: 23px; font-size: 14px;
+.mode .window .description {
+  
 }
 
-.mode.event .window .time.one {
+.mode .window .time.one {
   font-size: 18px;
 }
 
-.mode.event .window .time.two {
+.mode .window .time.two {
   font-size: 16px;
 }
 
-.mode.event .window .venue {
+.mode .window .venue {
   font-size: 16px;
 }
 
-.mode.event .window .menu {
-  list-style:none;
-  clear:both;
+.mode .window .menu {
+  clear:both; 
+}
+
+.mode .window .menu ul {
+  overflow:hidden;
   padding-top:10px;
 }
 
-.mode.event .window .menu li {
+.mode .window .menu li {
+  list-style:none;
   float:left;
-  padding:5px;
+  padding:5px 10px;
   border-radius:2px;
   margin-right:10px;
+  cursor:pointer;
 }
 
-.mode.event .window .menu li.selected {
+.mode .window .menu li.selected {
   float:left;
   color:#FFFFFF;
   background:#996699;
+}
+
+.mode .window .menu div {
+  clear: both; padding: 6px 0 20px; line-height: 23px; font-size: 14px; display:none;
+}
+
+.mode .window .menu div.selected {
+  display:block;
 }
 
 

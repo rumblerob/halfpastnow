@@ -44,6 +44,14 @@ $(function() {
     event.stopPropagation();
   });
   
+  $(".mode .window .menu li").click(function() {
+    var index = $(this).index();
+    $(this).parent().children("li").removeClass("selected");
+    $(this).addClass("selected");
+    $(this).parent().parent().children("div").removeClass("selected");
+    $(this).parent().parent().children("div").eq(index).addClass("selected");
+  });
+  
   $('[linkto]').click(function(event) {
     var thing = {type:$(this).attr("linkto"), id: $(this).attr("href")};
     history.pushState(thing, thing.type + " mode", "?" + thing.type + "_id=" + thing.id);
