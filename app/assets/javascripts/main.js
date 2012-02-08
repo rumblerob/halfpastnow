@@ -1,5 +1,5 @@
 window.addEventListener("popstate", function(e) {
-  //console.log(e);
+  console.log(e);
   var query = e.target.location.search;
   if(query !== "") {
     modal(parsequery(query));
@@ -36,7 +36,7 @@ $(function() {
   $('#content .sidebar .inner .filter.date .date ').datepicker();
 
   $('.mode .overlay').click(function() {   
-    history.pushState({}, "main mode", "/events");
+    history.pushState({}, "main mode", "/");
     demodal();
   });
 
@@ -79,17 +79,7 @@ function parsequery(query) {
 function demodal() {
   modal();
 }
-/*
-function forward() {
-  history.pushState(thing, thing.type + " mode", "?" + thing.type + "_id=" + thing.id);
-  history_counter++; 
-}
 
-function backAll() {
-  history.go(-1 * history_counter);
-  history_counter = 0;
-}
-*/
 function modal(thing) {
   if(!thing) {
     $('.mode').hide();
@@ -98,9 +88,4 @@ function modal(thing) {
 
   $('.mode').hide();
   $('.mode.' + thing.type).show();
-
-  //var offset = { width: 60, height: 60 };
-  //$('.mode.' + thing.type + ' .window').width($(window).width() - offset.width * 2);
-  //$('.mode.' + thing.type + ' .window').height($(window).height() - offset.height * 2);
-  //$('.mode.' + thing.type + ' .window').css({ left: offset.width, top: offset.height });
 }
