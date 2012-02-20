@@ -1,25 +1,4 @@
-<script type="text/javascript">
-  $(function() {
-    $("button.venue").click(function() {
-      if($(this).hasClass("new")) {
-	$(".field.new.venue").show();
-	$(".field.existing.venue").hide();
-	$("button.new.venue").hide();
-	$("button.existing.venue").show();
-      } else {
-	$(".field.new.venue").hide();
-	$(".field.existing.venue").show();
-	$("button.new.venue").show();
-	$("button.existing.venue").hide();
-      }
-      return false;
-    });
-  });
-</script>
 <style type="text/css">
-  .field.venue.existing, button.venue.new {
-    display:none;
-  }
   html,body {
     overflow:auto;
   }
@@ -58,21 +37,6 @@
   <div class="field">
     <%= f.label :price %><br />
     <%= f.text_field :price %>
-  </div>
-  <div class="field">
-    <button class="existing venue">Use Existing Venue</button>
-    <button class="new venue">Create New Venue</button>
-  </div>
-  <div class="field new venue">
-    new venue
-  </div>
-  <div class="field existing venue">
-    <%= select("event", "venue_id", Venue.all.collect {|v| [ v.name, v.id ] }, {:prompt => 'Select Venue'}) %>
-  </div>
-  <div class="field">
-    <%= f.label :time %><br/>
-    <div class="sublabel">start</div><%= select_datetime DateTime.now, :prefix => :start %><br/>
-    <div class="sublabel">end</div><%= select_datetime DateTime.now, :prefix => :end %>
   </div>
   <div class="actions">
     <%= f.submit %>

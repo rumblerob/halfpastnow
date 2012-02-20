@@ -17,7 +17,7 @@ class VenuesController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @venue }
+      format.json { render json: @venue.to_json(:include => { :events => { :include => :occurrences } } ) }
     end
   end
 
@@ -50,7 +50,7 @@ class VenuesController < ApplicationController
 
     respond_to do |format|
       if @venue.save
-        format.html { redirect_to action: :edit, notice: 'yay' }
+        format.html { redirect_to action: :index }
         format.json { render json: @venue, status: :created, location: @venue }
       else
         format.html { render action: "new" }

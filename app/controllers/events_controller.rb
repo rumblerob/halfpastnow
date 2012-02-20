@@ -17,7 +17,7 @@ class EventsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @event }
+      format.json { render json: @event.to_json(:include => [:occurrences, :venue]) }
     end
   end
 
