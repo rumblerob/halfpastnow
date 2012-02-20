@@ -1,0 +1,50 @@
+<%= form_for(@venue) do |f| %>
+  <% if @venue.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@venue.errors.count, "error") %> prohibited this venue from being saved:</h2>
+
+      <ul>
+      <% @venue.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% @venue.events.sort_by{ |event| event.id || 0 }.each do |event| %>
+    <%= f.fields_for :events, event do |e| %>
+      <div class="main event">
+	<%= event.id.nil? ? raw("<h4>New Event</h4>") : "" %>
+	<div class="field">
+	  <%= e.label :title %>
+	  <%= e.text_field :title %>
+	</div>
+	<div class="field">
+	  <%= e.label :description %>
+	  <%= e.text_area :description %>
+	</div>
+	<% event.occurrences.sort_by{ |occurrence| occurrence.id || 0 }.each do |occurrence| %>
+	  <%= e.fields_for :occurrences, occurrence do |o| %>
+	    <div class="field">
+	      <%= o.label :start %><%= o.datetime_select :start %>
+	    </div><div class="field">
+	      <%= o.label :end %><%= o.datetime_select :end %>
+	    </div>
+	  <% end %>
+	<% end %>
+	<div class="field">
+	  <%= e.label :price %>
+	  <%= e.text_field :price, :class => "price" %>
+	</div>
+	<% if !event.id.nil? %>
+	  <div class="remove">
+	    <%= e.check_box :_destroy %>
+	    <%= e.label :_destroy, "Remove Event" %>
+	  </div>
+	<% end %>
+      </div>
+    <% end %>
+  <% end %>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

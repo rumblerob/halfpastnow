@@ -1,0 +1,90 @@
+<script type="text/javascript">
+  var geocoder;
+  var map;
+  var marker = null;
+  function initialize() {
+    geocoder = new google.maps.Geocoder();
+    var latlng = new google.maps.LatLng(30.25, -97.75);
+    var myOptions = {
+      zoom: 8,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    map = new google.maps.Map($("#map_canvas")[0], myOptions);
+    codeAddress();
+  }
+
+  function codeAddress() {
+    
+    var address = ($("#venue_address").val() != "") ? $("#venue_address").val() + " " + $("#venue_city").val() + ", " + $("#venue_state").val() + " " + $("#venue_zip").val() : "Austin, TX";
+    geocoder.geocode( { 'address': address}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+	if(marker) 
+	  marker.setMap(null);
+	map.setCenter(results[0].geometry.location);
+	marker = new google.maps.Marker({
+	    map: map,
+	    position: results[0].geometry.location
+	});
+	$("#venue_latitude").val(results[0].geometry.location.Qa);
+	$("#venue_longitude").val(results[0].geometry.location.Ra);
+      } else {
+	console.log("Geocode was not successful for the following reason: " + status);
+      }
+    });
+  }
+
+  $(function() {
+    $(".location").blur(codeAddress);
+  });
+
+</script>
+<%= form_for(@venue) do |f| %>
+  <% if @venue.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@venue.errors.count, "error") %> prohibited this venue from being saved:</h2>
+
+      <ul>
+      <% @venue.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+   <div class="main settings">
+    <div class="field">
+      <%= f.label :name %>
+      <%= f.text_field :name %>
+    </div>
+    <div class="field">
+      <%= f.label :description %>
+      <%= f.text_area :description %>
+    </div>
+    <div class="field">
+      <%= f.label :address %>
+      <%= f.text_field :address, :class => 'location' %>
+    </div>
+    <div class="field">
+      <%= f.label :address2 %>
+      <%= f.text_field :address2 %>
+    </div>
+    <div class="field">
+      <%= f.label :city %>
+      <%= f.text_field :city, :class => 'location' %>
+    </div>
+    <div class="field">
+      <%= f.label :state %>
+      <%= f.text_field :state, :class => 'location' %>
+    </div>
+    <div class="field">
+      <%= f.label :zip %>
+      <%= f.text_field :zip, :class => 'location' %>
+    </div>
+    <%= f.hidden_field :latitude %>
+    <%= f.hidden_field :longitude %>
+  </div>
+  <div id="map_canvas"></div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

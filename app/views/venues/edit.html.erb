@@ -1,0 +1,31 @@
+<script type="text/javascript">
+  $(function() {
+    $('.menu').click(function() {
+      $(this).parent().children('.menu').removeClass('selected');
+      $(this).addClass('selected');
+
+      $('.tab').removeClass('selected');
+      if($(this).hasClass('events')) {
+	$('.tab.events').addClass('selected');
+      } else {
+	$('.tab.settings').addClass('selected');
+      }
+    });
+  });
+</script>
+<style type="text/css">
+  .tab { display: none; margin-bottom:50px; }
+  .tab.selected { display: block; }
+  .menu.selected { color: black; text-decoration: none; }
+</style>
+<h1><%= @venue.name %></h1>
+<h3><a href='#' class='menu events'>Events</a> | <a href='#' class='menu settings selected'>Settings</a></h3>
+
+<div class="tab events">
+  <%= render 'form_events' %>
+</div>
+<div class="tab settings selected">
+  <%= render 'form_settings' %>
+</div>
+
+<%= link_to 'Back', venues_path %>

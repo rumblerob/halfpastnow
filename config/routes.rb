@@ -2,6 +2,7 @@ Myapp::Application.routes.draw do
   
   match "" => "events#index"
   resources :events
+  resources :venues
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

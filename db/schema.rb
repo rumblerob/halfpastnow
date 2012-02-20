@@ -11,20 +11,41 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120131033420) do
+ActiveRecord::Schema.define(:version => 20120215152835) do
 
   create_table "events", :force => true do |t|
     t.string   "title"
     t.text     "description"
-    t.string   "image_url"
     t.decimal  "price"
-    t.date     "date"
-    t.time     "time"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "venue_id"
+  end
+
+  add_index "events", ["venue_id"], :name => "index_events_on_venue_id"
+
+  create_table "occurrences", :force => true do |t|
+    t.datetime "start"
+    t.datetime "end"
+    t.integer  "event_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "occurrences", ["event_id"], :name => "index_occurrences_on_event_id"
+
+  create_table "venues", :force => true do |t|
+    t.string   "name"
+    t.text     "description"
+    t.string   "address"
+    t.string   "address2"
+    t.string   "city"
+    t.string   "state"
+    t.integer  "zip"
     t.float    "latitude"
     t.float    "longitude"
-    t.string   "location"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
 end

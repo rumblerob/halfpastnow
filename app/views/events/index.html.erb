@@ -69,34 +69,34 @@
     </div>
     <div class="main">
       <div class="inner">
-	<div class="header">9000+ events around <span>Austin</span></div>
+	<div class="header"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %> around <span>Austin</span></div>
 	<ul class="events">
-	<% # TODO: put this stuff in the controller eventually & merge date + time fields for event. %>
-	<% now = DateTime.now.change(:hour => 0) %>
-	<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+	<%# TODO: put this stuff in the controller eventually %>
+	<%# now = DateTime.now.change(:hour => 0) %>
+	<%# day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
 	<% @events.each do |event| %>
-      <li href="<%= event.id %>" linkto="event">
-	  <div class="vote">
-	    <img src="/assets/upvote7.png" class="upvote" />
-	    <img src="/assets/downvote7.png" class="downvote" />
-	  </div>
-	  <div class="when sun">
-	    <div class="mod"><%= (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %></div>
-	    <div class="day"><%= day_of_week[event.date.wday] %></div>
-	    <div class="time"><%= event.time.strftime("%I:%M%P") %></div>
-	  </div>
-	  <div class="one">
-	    <span class="name"><%= event.title %></span>
-	    <a class="venue" linkto="venue" href="1"><%= event.location %></a>
-	    <div class="description"><%= truncate(strip_tags(event.description),
-	    :length => 300) %></div>
-	  </div>
-	</li>
-      <!--<%= link_to 'Show', event %><br/>
-      <%= link_to 'Edit', edit_event_path(event) %><br/>
-      <%= link_to 'Destroy', event, 
-      :confirm => 'Are you sure?',
-      :method => :delete %>-->
+	  <li href="<%= event.id %>" linkto="event">
+	    <div class="vote">
+	      <img src="/assets/upvote7.png" class="upvote" />
+	      <img src="/assets/downvote7.png" class="downvote" />
+	    </div>
+	    <div class="when sun">
+	      <div class="mod">
+		THIS<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
+	      </div>
+	      <div class="day">
+		SUN<%# day_of_week[event.date.wday] %>
+	      </div>
+	      <div class="time">
+		 05:00pm<%# event.time.strftime("%I:%M%P") %>
+	      </div>
+	    </div>
+	    <div class="one">
+	      <span class="name"><%= event.title %></span>
+	      <a class="venue" linkto="venue" href="<%= event.venue.id %>"><%= event.venue.name %></a>
+	      <div class="description"><%= truncate(strip_tags(event.description), :length => 300) %></div>
+	    </div>
+	  </li>
 	<% end %>
       </div>
     </div>

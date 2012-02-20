@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  start: 2012-02-13 05:45:24
+  end: 2012-02-13 05:45:24
+  event: 
+
+two:
+  start: 2012-02-13 05:45:24
+  end: 2012-02-13 05:45:24
+  event: 

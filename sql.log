@@ -1,0 +1,6 @@
+# Logfile created on 2012-02-13 17:04:25 -0600 by logger.rb/31641
+  [1m[36m (0.3ms)[0m  [1mSHOW search_path[0m
+  [1m[35mEvent Load (0.6ms)[0m  SELECT "events".* FROM "events" 
+  [1m[36mVenue Load (0.8ms)[0m  [1mSELECT "venues".* FROM "venues" WHERE "venues"."id" = 1 LIMIT 1[0m
+  [1m[35mEvent Load (0.3ms)[0m  SELECT "events".* FROM "events" 
+  [1m[36mVenue Load (0.4ms)[0m  [1mSELECT "venues".* FROM "venues" WHERE "venues"."id" = 1 LIMIT 1[0m

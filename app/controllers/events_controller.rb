@@ -25,7 +25,8 @@ class EventsController < ApplicationController
   # GET /events/new.json
   def new
     @event = Event.new
-
+    #@venues = Venue.all
+    
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @event }
@@ -35,15 +36,18 @@ class EventsController < ApplicationController
   # GET /events/1/edit
   def edit
     @event = Event.find(params[:id])
+    #@venues = Venue.all
   end
 
   # POST /events
   # POST /events.json
   def create
     @event = Event.new(params[:event])
-
+    @occurrence = Occurrence.new(:start => params[:start], :end => params[:end], :event_id => @event.id)
+    puts params[:start]
+    puts params[:end]
     respond_to do |format|
-      if @event.save
+      if @event.save && @occurrence.save
         format.html { redirect_to @event, notice: 'Event was successfully created.' }
         format.json { render json: @event, status: :created, location: @event }
       else
