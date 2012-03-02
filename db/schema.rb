@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120227205622) do
+ActiveRecord::Schema.define(:version => 20120229164941) do
 
   create_table "events", :force => true do |t|
     t.string   "title"
@@ -35,9 +35,11 @@ ActiveRecord::Schema.define(:version => 20120227205622) do
     t.integer  "event_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "recurrence_id"
   end
 
   add_index "occurrences", ["event_id"], :name => "index_occurrences_on_event_id"
+  add_index "occurrences", ["recurrence_id"], :name => "index_occurrences_on_recurrence_id"
 
   create_table "raw_venues", :force => true do |t|
     t.string   "name"
@@ -57,6 +59,23 @@ ActiveRecord::Schema.define(:version => 20120227205622) do
     t.datetime "updated_at"
     t.string   "name2"
   end
+
+  create_table "recurrences", :force => true do |t|
+    t.integer  "interval"
+    t.integer  "every_other"
+    t.integer  "day_of_week"
+    t.integer  "day_of_month"
+    t.integer  "week_of_month"
+    t.date     "range_start"
+    t.date     "range_end"
+    t.datetime "start"
+    t.datetime "end"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "event_id"
+  end
+
+  add_index "recurrences", ["event_id"], :name => "index_recurrences_on_event_id"
 
   create_table "tags", :force => true do |t|
     t.string   "name"
