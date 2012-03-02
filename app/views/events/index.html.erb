@@ -22,11 +22,15 @@
     <div class="two">
       <div class="inner">
 	<div class="search">
-	  find
-	  <input type="text" class="terms" placeholder="stuff to do"/>
-	  around
-	  <input type="text" class="location" placeholder="a point in space"/>
-	  <button><img src="/assets/search2.png" /></button> 
+
+		<%= form_tag("/events", :method => "get") do %>
+		  <%= label_tag(:q, "find") %>
+		  <%= text_field_tag(:search, params[:search]) %>
+		  around
+		  <input type="text" class="location" placeholder="a point in space"/>
+		  <%= image_submit_tag("search2.png") %>
+		<% end %>
+	
 	</div>
       </div>
     </div>
