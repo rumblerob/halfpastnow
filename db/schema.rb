@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120215152835) do
+ActiveRecord::Schema.define(:version => 20120229164941) do
 
   create_table "events", :force => true do |t|
     t.string   "title"
@@ -24,15 +24,65 @@ ActiveRecord::Schema.define(:version => 20120215152835) do
 
   add_index "events", ["venue_id"], :name => "index_events_on_venue_id"
 
+  create_table "events_tags", :id => false, :force => true do |t|
+    t.integer "event_id"
+    t.integer "tag_id"
+  end
+
   create_table "occurrences", :force => true do |t|
     t.datetime "start"
     t.datetime "end"
     t.integer  "event_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "recurrence_id"
   end
 
   add_index "occurrences", ["event_id"], :name => "index_occurrences_on_event_id"
+  add_index "occurrences", ["recurrence_id"], :name => "index_occurrences_on_recurrence_id"
+
+  create_table "raw_venues", :force => true do |t|
+    t.string   "name"
+    t.string   "address"
+    t.string   "address2"
+    t.string   "city"
+    t.integer  "zip"
+    t.string   "state_code"
+    t.string   "phone"
+    t.float    "latitude"
+    t.float    "longitude"
+    t.integer  "rating"
+    t.integer  "review_count"
+    t.text     "categories"
+    t.text     "neighborhoods"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "name2"
+  end
+
+  create_table "recurrences", :force => true do |t|
+    t.integer  "interval"
+    t.integer  "every_other"
+    t.integer  "day_of_week"
+    t.integer  "day_of_month"
+    t.integer  "week_of_month"
+    t.date     "range_start"
+    t.date     "range_end"
+    t.datetime "start"
+    t.datetime "end"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "event_id"
+  end
+
+  add_index "recurrences", ["event_id"], :name => "index_recurrences_on_event_id"
+
+  create_table "tags", :force => true do |t|
+    t.string   "name"
+    t.integer  "parent_tag_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "venues", :force => true do |t|
     t.string   "name"
