@@ -10,6 +10,8 @@ gem 'thin'
 gem 'thinking-sphinx', '2.0.11'
 gem 'flying-sphinx',   '0.6.1'
 
+gem 'admin_data', '>= 1.1.16'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
