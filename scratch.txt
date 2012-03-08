@@ -1,0 +1,54 @@
+
+events index - integrated search
+<div class="search">
+	
+	<% form_tag projects_path, :method => 'get' do %>
+	find
+	    <%= text_field_tag :search, params[:search] %>
+	around 
+  		<input type="text" class="location" placeholder="a point in space"/>
+	    <%= submit_tag "Search", :name => nil %>
+	  </p>
+	<% end %>
+  <button><img src="/assets/search2.png" /></button> 
+</div>
+
+events index original search
+<div class="search">
+  find
+  <input type="text" class="terms" placeholder="stuff to do"/>
+  around
+  <input type="text" class="location" placeholder="a point in space"/>
+  <button><img src="/assets/search2.png" /></button> 
+</div>
+
+event.rb indexing
+  
+define_index do
+      indexes title, :sortable => true
+      indexes description
+      indexes venue.name
+end
+
+
+event.rb manual search function
+  
+  def self.search(search)
+    if search
+      find(:all, :conditions => ['title LIKE ?', "%#{search}%"])
+    else
+      find(:all)
+    end
+  end
+
+  @events = Event.search params[:search]
+
+
+
+	<%= form_tag("/events", :method => "get") do %>
+	  <%= label_tag(:q, "find") %>
+	  <%= text_field_tag(:search, params[:search]) %>
+	  around
+	  <input type="text" class="location" placeholder="a point in space"/>
+	  <%= image_submit_tag("search2.png") %>
+	<% end %>
