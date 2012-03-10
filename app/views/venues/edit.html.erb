@@ -6,9 +6,9 @@
 
       $('.tab').removeClass('selected');
       if($(this).hasClass('events')) {
-	$('.tab.events').addClass('selected');
+      	$('.tab.events').addClass('selected');
       } else {
-	$('.tab.settings').addClass('selected');
+        $('.tab.settings').addClass('selected');
       }
     });
   });
@@ -19,13 +19,14 @@
   .menu.selected { color: black; text-decoration: none; }
 </style>
 <h1><%= @venue.name %></h1>
-<h3><a href='#' class='menu events'>Events</a> | <a href='#' class='menu settings selected'>Settings</a></h3>
+<h3><a href='#' class='menu settings selected'>Settings</a> | <a href='#' class='menu events'>Events</a></h3>
 
-<div class="tab events">
-  <%= render 'form_events' %>
-</div>
 <div class="tab settings selected">
   <%= render 'form_settings' %>
 </div>
+<div class="tab events">
+  <%= render 'form_events' %>
+</div>
+
 
 <%= link_to 'Back', venues_path %>

@@ -6,48 +6,98 @@ end
 
 class Recurrence < ActiveRecord::Base
   has_many :occurrences, :dependent => :destroy
+  # validates :start, :presence => true
+  # validates :end, :presence => true
 
-  def gen_occurrences
-    counter_time = (range_start && range_start.to_date.to_time > Date.today.to_time) ? range_start.to_date.to_time : Date.today.to_time
+  def next_occurrence(time)
     until_time = (range_end && range_end.to_time < Time.now.advance(:years => 1)) ? range_end.to_time : Time.now.advance(:years => 1)
-    
-    #initial occurrence
     if(day_of_week && week_of_month)
-      occurrence_this_month = counter_time.beginning_of_month.advance(:weeks => week_of_month, :days => (day_of_week - counter_time.beginning_of_month.wday)%7)
-      counter_time_next_month = counter_time.advance(:months => 1)
-      occurrence_next_month = counter_time_next_month.beginning_of_month.advance(:weeks => week_of_month, :days => (day_of_week - counter_time_next_month.beginning_of_month.wday)%7)
-      counter_time = (counter_time.mday > occurrence_this_month.mday) ? occurrence_next_month : occurrence_this_month
+      time_next_month = time.advance(:months => 1)
+      time = time_next_month.beginning_of_month.advance(:weeks => week_of_month, :days => (day_of_week - time_next_month.beginning_of_month.wday)%7)
     elsif(day_of_week)
-      counter_time.advance(:days => (day_of_week - counter_time.wday)%7)
+      time = time.advance(:weeks => (every_other || 0) + 1)
     elsif(day_of_month)
-      if(counter_time.mday > day_of_month)
-	counter_time.advance(:days => (day_of_month - counter_time.mday))
-      elsif(counter_time.mday < day_of_month)
-	counter_time.advance(:months => 1, :days => (counter_time.mday - day_of_month))
+      mday = time.mday
+      begin
+      	time = time.advance(:months => (every_other || 0) + 1)
+      	if(time.mday != mday && Time.days_in_month(time.month) >= mday)
+      	  time.advance(:days => (mday - time.mday))
+      	end
+      	if time.to_date > until_time.to_date
+      	  return nil
+      	end
+      end until time.mday == mday
+    else
+      time = time.advance(:days => (every_other || 0) + 1)
+    end
+    return time
+  end
+  
+
+  def gen_occurrences(number_of_occurrences = -1)
+    occurrences_exist = (self.occurrences.count > 0)
+    puts "do occurrences exist? " + (occurrences_exist ? "YES" : "NO")
+    until_time = (range_end && range_end.to_time < Time.now.advance(:years => 1)) ? range_end.to_time : Time.now.advance(:years => 1)
+    counter_time = occurrences_exist ? self.occurrences.last(:order => "start").start.to_date.to_time : ((range_start && range_start.to_date.to_time > Date.today.to_time) ? range_start.to_date.to_time : Date.today.to_time)
+    puts "original time: " + counter_time.to_s
+    puts "until time: " + until_time.to_s
+
+    if(occurrences_exist)
+      counter_time = next_occurrence(counter_time)
+      if !counter_time
+        return false
+      end
+    else
+      if(day_of_week && week_of_month)
+      	puts "monthly (week)"
+        occurrence_this_month = counter_time.beginning_of_month.advance(:weeks => week_of_month, :days => (day_of_week - counter_time.beginning_of_month.wday)%7)
+      	counter_time_next_month = counter_time.advance(:months => 1)
+      	occurrence_next_month = counter_time_next_month.beginning_of_month.advance(:weeks => week_of_month, :days => (day_of_week - counter_time_next_month.beginning_of_month.wday)%7)
+      	counter_time = (counter_time.mday > occurrence_this_month.mday) ? occurrence_next_month : occurrence_this_month
+      elsif(day_of_week)
+        puts "weekly"
+        counter_time = counter_time.advance(:days => (day_of_week - counter_time.wday)%7)
+      elsif(day_of_month)
+        puts "monthly (day)"
+        first_loop = true
+        begin
+      	  if(day_of_month > Time.days_in_month(counter_time.month) || (first_loop && day_of_month < counter_time.mday))
+      	    counter_time = counter_time.advance(:months => 1)
+      	  else
+      	    counter_time = counter_time.advance(:days => (day_of_month - counter_time.mday))
+      	  end
+          first_loop = false
+          puts "monthly (day) counter at " + counter_time.to_s
+        end until(counter_time.mday == day_of_month || counter_time.to_date > until_time.to_date)
+      else
+        puts "daily"
       end
     end
     
-    while (counter_time.to_date <= until_time.to_date)
-      #build new occurrence
-      #TODO: make this work for things that don't start and end on the same day
-      start_datetime = counter_time.advance(:hours => self.start.to_time.hour, :minutes => self.start.to_time.min)
-      end_datetime = counter_time.advance(:hours => self.end.to_time.hour, :minutes => self.end.to_time.min)
+    puts "first counter time: " + counter_time.to_s
+    counter_occurrences = 0
+    while (counter_time.to_date <= until_time.to_date && (!(number_of_occurrences >= 0) || counter_occurrences < number_of_occurrences))
+      #build occurrence
+      event_length = self.end - self.start
+      start_datetime = counter_time.advance(:hours => self.start.to_time.hour, :minutes => self.start.to_time.min).to_datetime
+      end_datetime = start_datetime.to_time.advance(:hours => event_length.to_i/3600, :minutes => (event_length.to_i%3600)/60).to_datetime
       occurrences.build(:start => start_datetime, :end => end_datetime, :event_id => self.event_id)
       
+      #puts "occurrence created at " + start_datetime.to_s
+
+
       #find next occurrence time
-      if(day_of_week && week_of_month)
-	counter_time_next_month = counter_time.advance(:months => 1)
-	counter_time = counter_time_next_month.beginning_of_month.advance(:weeks => week_of_month, :days => (day_of_week - counter_time_next_month.beginning_of_month.wday)%7)
-      elsif(day_of_week)
-	counter_time = counter_time.advance(:weeks => (every_other || 0) + 1)
-      elsif(day_of_month)
-	#TODO: make this work for 29th, 30th, 31st in all cases
-	counter_time = counter_time.advance(:months => (every_other || 0) + 1)
-      else
-	counter_time = counter_time.advance(:days => (every_other || 0) + 1)
+      counter_time = next_occurrence(counter_time)
+      if !counter_time
+        break
       end
+      
+      counter_occurrences += 1
     end
     
     self.save
+
+    return counter_occurrences > 0
   end
+
 end
