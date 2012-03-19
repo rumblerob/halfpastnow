@@ -1,3 +1,4 @@
+desc "discard old occurrences and create new ones from recurrences"
 task :update_occurrences => :environment do
 	puts "update_occurrences"
 	old_occurrences = Occurrence.where(:start => (DateTime.new(1900))..(DateTime.now))
@@ -15,5 +16,23 @@ task :update_occurrences => :environment do
 				occurrence.destroy
 			end
 		end
+	end
+end
+
+desc "generate venues from raw_venues"
+task :raw_venues_to_venues => :environment do
+	raw_venues = RawVenue.all
+	raw_venues.each do |raw_venue| 
+		Venue.create({
+			:name => raw_venue.name,
+	    	:address => raw_venue.address,
+	    	:address2 => raw_venue.address2,
+	    	:city => raw_venue.city,
+	    	:state => raw_venue.state_code,
+	    	:zip => raw_venue.zip,
+	    	:latitude => raw_venue.latitude,
+	    	:longitude => raw_venue.longitude,
+	    	:phonenumber => raw_venue.phone
+		})
 	end
 end
