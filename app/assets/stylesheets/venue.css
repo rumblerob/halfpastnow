@@ -60,9 +60,46 @@ input.price {
 
 .remove {
   float:right;
-  
+  margin-right:10px;
 }
 
 #map_canvas {
    width: 480px; height: 320px; float:left;margin: 40px 0 0 23px;
+}
+
+.main.event .occurrence, .main.event .recurrence {
+  background-color: #EEEEEE;
+  margin-bottom: 10px;
+  margin-left: 130px;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.main.event .recurrence {
+  
+}
+
+.main.event .recurrence span {
+  font-style:italic;
+}
+
+.main.event .occurrence label, .main.event .recurrence label {
+  width:50px;
+}
+
+.occurrence .remove, .recurrence .remove {
+  margin-right:0px;
+}
+
+.toggle-recurring {
+  margin-bottom:10px;
+}
+
+select.interval {
+  margin-bottom:10px;
+}
+
+.recur-parameter {
+  display:inline-block;
+  margin-bottom:10px;
 }
