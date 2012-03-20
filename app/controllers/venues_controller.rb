@@ -63,41 +63,43 @@ class VenuesController < ApplicationController
   def update
     @venue = Venue.find(params[:id])
 
-    params[:venue][:events_attributes].each do |params_event|
-      if params_event[1]["recurring"]
-        puts "recurring"
-        params_event[1]["occurrences_attributes"].shift
-        if params_event[1]["occurrences_attributes"].length == 0
-          params_event[1].delete("occurrences_attributes")
-        end
-      else
-        puts "not recurring"
-        params_event[1]["recurrences_attributes"].shift
-        if params_event[1]["recurrences_attributes"].length == 0
-          params_event[1].delete("recurrences_attributes")
-        end
-      end
-      if params_event[1]["occurrences_attributes"] 
-        params_event[1]["occurrences_attributes"].each_with_index do |params_occurrence, index|
-          puts "start(4i): " + params_occurrence[1]["start(4i)"]
-          if params_occurrence[1]["start(4i)"] == "" || params_occurrence[1]["start(5i)"] == "" || params_occurrence[1]["end(4i)"] == "" || params_occurrence[1]["end(5i)"] == ""  
-            puts "deleting occurrence:"
-            puts index
-            puts params_event[1]["occurrences_attributes"][index.to_s]
-            params_event[1]["occurrences_attributes"].delete(index.to_s)
+    if(params[:venue][:events_attributes])
+      params[:venue][:events_attributes].each do |params_event|
+        if params_event[1]["recurring"]
+          puts "recurring"
+          params_event[1]["occurrences_attributes"].shift
+          if params_event[1]["occurrences_attributes"].length == 0
+            params_event[1].delete("occurrences_attributes")
+          end
+        else
+          puts "not recurring"
+          params_event[1]["recurrences_attributes"].shift
+          if params_event[1]["recurrences_attributes"].length == 0
+            params_event[1].delete("recurrences_attributes")
           end
         end
-      end
-      if params_event[1]["recurrences_attributes"]
-        params_event[1]["recurrences_attributes"].each do |params_recurrence|
-          puts "start(4i): " + params_recurrence[1]["start(4i)"]
-          if params_recurrence[1]["start(4i)"] == "" || params_recurrence[1]["start(5i)"] == "" || params_recurrence[1]["end(4i)"] == "" || params_recurrence[1]["end(5i)"] == ""  
-            puts "deleting recurrence"
-            params_recurrence.shift(2)
+        if params_event[1]["occurrences_attributes"] 
+          params_event[1]["occurrences_attributes"].each_with_index do |params_occurrence, index|
+            puts "start(4i): " + params_occurrence[1]["start(4i)"]
+            if params_occurrence[1]["start(4i)"] == "" || params_occurrence[1]["start(5i)"] == "" || params_occurrence[1]["end(4i)"] == "" || params_occurrence[1]["end(5i)"] == ""  
+              puts "deleting occurrence:"
+              puts index
+              puts params_event[1]["occurrences_attributes"][index.to_s]
+              params_event[1]["occurrences_attributes"].delete(index.to_s)
+            end
           end
         end
+        if params_event[1]["recurrences_attributes"]
+          params_event[1]["recurrences_attributes"].each do |params_recurrence|
+            puts "start(4i): " + params_recurrence[1]["start(4i)"]
+            if params_recurrence[1]["start(4i)"] == "" || params_recurrence[1]["start(5i)"] == "" || params_recurrence[1]["end(4i)"] == "" || params_recurrence[1]["end(5i)"] == ""  
+              puts "deleting recurrence"
+              params_recurrence.shift(2)
+            end
+          end
+        end
+        params_event[1].delete("recurring")
       end
-      params_event[1].delete("recurring")
     end
 
     puts params[:venue]
