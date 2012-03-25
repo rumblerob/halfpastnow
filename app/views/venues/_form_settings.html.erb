@@ -38,7 +38,7 @@
   });
 
 </script>
-<%= form_for(@venue) do |f| %>
+<%= form_for @venue, :url => @venue.id ? "/venues/update/" + @venue.id.to_s : "/venues/create" do |f| %>
   <% if @venue.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@venue.errors.count, "error") %> prohibited this venue from being saved:</h2>

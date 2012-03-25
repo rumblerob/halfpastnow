@@ -87,7 +87,7 @@ function modal(thing) {
   }
   
   if(thing.type === "event") {
-    $.getJSON('/events/' + thing.id + '.json', function(event) {
+    $.getJSON('/events/show/' + thing.id + '.json', function(event) {
       console.log(event);
       
       $('.mode.event h1').html(event.title);
@@ -101,7 +101,7 @@ function modal(thing) {
       $('.mode.event').show();
     });
   } else {
-    $.getJSON('/venues/' + thing.id + '.json', function(venue) {
+    $.getJSON('/venues/show/' + thing.id + '.json', function(venue) {
       console.log(venue);
       
       $('.mode.venue h1').html(venue.name);

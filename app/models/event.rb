@@ -5,12 +5,10 @@ class Event < ActiveRecord::Base
   has_many :occurrences, :dependent => :destroy
   accepts_nested_attributes_for :occurrences, :allow_destroy => true
   accepts_nested_attributes_for :recurrences, :allow_destroy => true
-  
+  accepts_nested_attributes_for :venue
   define_index do
         indexes title, :sortable => true
         indexes description
         indexes venue.name
   end
-
-    
 end
