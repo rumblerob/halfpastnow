@@ -41,7 +41,7 @@ task :raw_venues_to_venues => :environment do
 		})
 	end
 end
-
+ 
 desc "pull events from assorted apis"
 task :pull_api_events, [:until_time]  => :environment do |t, args|
 	d_until = args[:until_time] ? DateTime.parse(args[:until_time]) : nil
