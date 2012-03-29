@@ -1,0 +1,159 @@
+<script type="text/javascript">
+  var rawVenue = {
+  	name: "<%= @venue.name %>",
+  	description: "<%= @venue.description %>",
+  	address: "<%= @venue.address %>",
+  	address2: "<%= @venue.address2 %>",
+  	city: "<%= @venue.city %>",
+  	state: "<%= @venue.state %>",
+  	zip: "<%= @venue.zip %>",
+  	latitude: "<%= @venue.latitude %>",
+  	longitude: "<%= @venue.longitude %>"
+  };
+
+  var blankVenue = {
+  	name: "",
+  	description: "",
+  	address: "",
+  	address2: "",
+  	city: "",
+  	state: "",
+  	zip: "",
+  	latitude: "",
+  	longitude: ""
+  };
+
+  function pumpVenueInfo(venue) {
+  	$("#event_venue_attributes_name").val(venue.name);
+	$("#event_venue_attributes_description").val(venue.description);
+	$("#event_venue_attributes_address").val(venue.address);
+	$("#event_venue_attributes_address2").val(venue.address2);
+	$("#event_venue_attributes_city").val(venue.city);
+	$("#event_venue_attributes_state").val(venue.state);
+	$("#event_venue_attributes_zip").val(venue.zip);
+	$("#event_venue_attributes_latitude").val(venue.latitude);
+	$("#event_venue_attributes_longitude").val(venue.longitude);
+	$("#event_venue_id").val(venue.id);
+  }
+
+  $(function() {
+
+    $( "#venue-name" ).autocomplete({
+      source: function( request, response ) {
+        $.getJSON("/venues/find?contains=" + request.term, function (data) {
+          console.log(data);
+          response(data);
+        });
+      },
+      minLength: 2,
+      select: function( event, ui ) {
+        $.getJSON("/venues/show/" + ui.item.id + ".json", function(venue) {
+        	pumpVenueInfo(venue);
+        	$("#venue-name").val(ui.item.label);
+        });
+      },
+      open: function() {
+        $( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+      },
+      close: function() {
+        $( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+      }
+    });
+
+    $("[name=venue-type]").click(function() {
+    	if($(this).val() == "new") {
+    		$(".venue .something input, .venue .something textarea").removeAttr("disabled");
+    		pumpVenueInfo(rawVenue);
+    	} else {
+    		$(".venue .something input, .venue .something textarea").attr("disabled", "disabled");
+    		pumpVenueInfo(blankVenue);
+    	}
+    });
+
+    $("#venue-name").click(function() {
+    	$("#venue-name").val("");
+    	$("[name=venue-type][value=existing]").click();
+    });
+  });
+</script>
+
+<h1>Raw Event ⇶ Event</h1>
+
+<%= form_for @event, :url => "/events/fromRaw" do |e| %>
+	<div class="main event">
+		<div class="field">
+		  <%= e.label :title %>
+		  <%= e.text_field :title, :value => @rawEvent.title %>
+		</div>
+		<div class="field">
+		  <%= e.label :description %>
+		  <%= e.text_area :description, :value => @rawEvent.description %>
+		</div>
+		<div class="field">
+		  <%= e.label :price %>
+		  <%= e.text_field :price, :class => "price" %>
+		</div>
+		<div class="occurrence">
+			<div class="new-occurrence">
+				<%= e.fields_for :occurrences, @occurrence do |o| %>
+				    <div class="field">
+				    	<%= o.label :start %><%= o.datetime_select :start, :prompt => true, :ampm => true %>
+				    </div>
+				    <div class="field">
+				    	<%= o.label :end %><%= o.datetime_select :end, :prompt => true, :ampm => true %>
+				    </div>
+				<% end %>
+			</div>
+		</div>
+		<div class="venue">
+			<div style="margin:40px 0 0 130px;padding:10px;border:1px dashed gray;font-size:small;">
+				from RawEvent: [ <span style="font-style:italic;"><%= @rawEvent.venue_name %> / <%= @rawEvent.venue_address %> /	<%= @rawEvent.venue_city %>, <%= @rawEvent.venue_state %> <%= @rawEvent.venue_zip %></span> ]
+			</div>
+			<div class="field" style="margin:10px 0 10px 113px">
+				<input type="radio" value="existing" name="venue-type" checked/> Existing Venue <input id="venue-name" /><br/>
+				<input type="radio" value="new" name="venue-type" /> New Venue 
+			</div>
+			<div class="something">
+			<%= e.fields_for :venue, @venueBlank do |v| %>
+				<div class="field">
+					<%= v.label :name %>
+					<%= v.text_field :name, :disabled => true %>
+				</div>
+				<div class="field">
+					<%= v.label :description %>
+					<%= v.text_area :description, :disabled => true %>
+				</div>
+				<div class="field">
+					<%= v.label :address %>
+					<%= v.text_field :address, :class => 'location', :disabled => true %>
+				</div>
+				<div class="field">
+					<%= v.label :address2 %>
+					<%= v.text_field :address2, :disabled => true %>
+				</div>
+				<div class="field">
+					<%= v.label :city %>
+					<%= v.text_field :city, :class => 'location', :disabled => true %>
+				</div>
+				<div class="field">
+					<%= v.label :state %>
+					<%= v.text_field :state, :class => 'location', :disabled => true %>
+				</div>
+				<div class="field">
+					<%= v.label :zip %>
+					<%= v.text_field :zip, :class => 'location', :disabled => true %>
+				</div>
+			    <%= v.hidden_field :latitude, :disabled => true %>
+			    <%= v.hidden_field :longitude, :disabled => true %>
+			<% end %>
+			</div>
+		</div>
+	</div>
+	<div class="actions">
+		<%= e.hidden_field :venue_id %>
+		<%= e.submit %>&nbsp;&nbsp;
+		<a href="/events/fromRaw">skip</a>&nbsp;&nbsp;
+		<a href="/events/fromRaw?delete_id=<%= @rawEvent.id %>">delete</a>
+	</div>
+<% end %>
+

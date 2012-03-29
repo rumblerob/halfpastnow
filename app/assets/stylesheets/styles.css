@@ -101,6 +101,7 @@ H6
   overflow: hidden;
   background-image: url("/assets/scaletake2b.png");
   background-image: -moz-linear-gradient(center top , rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0)), url("/assets/scaletake2b.png");
+  background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0)), url("/assets/scaletake2b.png");
 }
 #header .two .search
 {
@@ -141,6 +142,7 @@ H6
 {
   background-color: #521257;
   background-image: -moz-linear-gradient(top center, #8C3A92,#521257);
+  background-image: -webkit-linear-gradient(top, #8C3A92,#521257);
   border: 1px solid #120613;
   border-radius: 2px;
   color: #FFFFFF;
@@ -479,6 +481,7 @@ html,body {
 }
 .mode .window h1 {
   background-image: -moz-linear-gradient(center top , rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0)), url("/assets/scaletake2b.png");
+  background-image: -webkit-linear-gradient(top , rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0)), url("/assets/scaletake2b.png");
   border: 1px solid #422043;
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.25);
   color: #FFFFFF;

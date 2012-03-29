@@ -30,8 +30,10 @@ GEM
     activesupport (3.1.3)
       multi_json (~> 1.0)
     addressable (2.2.7)
+
     admin_data (1.1.16)
       will_paginate (>= 3.0.0)
+
     ansi (1.4.1)
     arel (2.2.1)
     builder (3.0.0)
@@ -54,7 +56,11 @@ GEM
       rack (~> 1.1)
     faraday_middleware (0.7.0)
       faraday (~> 0.7.3)
+<<<<<<< HEAD
     flying-sphinx (0.6.1)
+=======
+    flying-sphinx (0.6.4)
+>>>>>>> 17eaa24e0741f33b8272402dfee0e87f1265f8e5
       faraday_middleware (~> 0.7.0)
       multi_json (~> 1.0.1)
       net-ssh (>= 2.0.23)
@@ -148,7 +154,11 @@ PLATFORMS
 DEPENDENCIES
   admin_data (>= 1.1.16)
   coffee-rails (~> 3.1.1)
+<<<<<<< HEAD
   flying-sphinx (= 0.6.1)
+=======
+  flying-sphinx (= 0.6.4)
+>>>>>>> 17eaa24e0741f33b8272402dfee0e87f1265f8e5
   jquery-rails
   pg
   rails (= 3.1.3)

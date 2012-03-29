@@ -2,7 +2,7 @@ class VenuesController < ApplicationController
   # GET /venues
   # GET /venues.json
   def index
-    @venues = Venue.all
+    # @venues = Venue.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -21,6 +21,17 @@ class VenuesController < ApplicationController
     end
   end
 
+  # GET /venues/find
+  def find
+    if(params[:contains])
+      @venues = Venue.where("name ilike ?", "%#{params[:contains]}%").collect {|v| { :label => "#{v.name} (#{v.address})", :value => "#{v.name} (#{v.address})", :id => v.id } }
+    else
+      @venues = []
+    end
+
+    render json: @venues
+  end
+
   # GET /venues/new
   # GET /venues/new.json
   def new
@@ -32,7 +43,7 @@ class VenuesController < ApplicationController
     end
   end
 
-  # GET /venues/1/edit
+  # GET /venues/edit/1
   def edit
     @venue = Venue.find(params[:id])
     @venue.events.build
@@ -106,10 +117,10 @@ class VenuesController < ApplicationController
 
     respond_to do |format|
       if @venue.update_attributes(params[:venue])
-        format.html { redirect_to action: :edit, notice: 'yay' }
+        format.html { redirect_to :action => :edit, :id => @venue.id, :notice => 'yay' }
         format.json { head :ok }
       else
-        format.html { redirect_to action: "edit", notice: 'boo' }
+        format.html { redirect_to :action => :edit, :id => @venue.id, :notice => 'boo' }
         format.json { render json: @venue.errors, status: :unprocessable_entity }
       end
     end
