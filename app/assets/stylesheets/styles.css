@@ -221,14 +221,13 @@ H6
 }
 #content .sidebar .inner .filter.date INPUT
 {
-  width: 84px;
+  width: 154px;
   text-align: right;
   padding-left: 6px;
   padding-right: 6px;
 }
 #content .sidebar .inner .filter.date INPUT.start.date
 {
-  margin-right: 5px;
 }
 #content .sidebar .inner .filter.date INPUT.end.date
 {
