@@ -40,13 +40,13 @@
       <div class="inner">
 	<h3>filter events by</h3>
 	<div class="filter date">
-	  <h5>date</h5>
-	  <input type="text" class="start date" placeholder="now"/> to <input type="text" class="end date" placeholder="forever"/>
+	  <h5>date + time</h5>
+	  from <input type="text" class="start date" placeholder="now"/><br/>to <input type="text" class="end date" placeholder="forever"/>
 	</div>
 	<div class="filter day">
 	  <h5>day of the week</h5>
 	  <span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span><span class="selected">sun</span>
-	</div>
+	</div><!--
 	<div class="filter distance">
 	  <h5>distance</h5>
 	  <div class="distances">
@@ -59,7 +59,7 @@
 	      <span val="5">driving distance (5 mi)</span>
 	    </div>
 	  </div>
-	</div>
+	</div>-->
 	<div class="filter price">
 	  <h5>price</h5>
 	  <span class="selected">free</span><span class="selected">$</span><span class="selected">$$</span><span class="selected">$$$</span><span class="selected">$$$$</span>
@@ -76,8 +76,8 @@
 	<div class="header"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %> around <span>Austin</span></div>
 	<ul class="events">
 	<%# TODO: put this stuff in the controller eventually %>
-	<%# now = DateTime.now.change(:hour => 0) %>
-	<%# day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+	<% now = DateTime.now.change(:hour => 0) %>
+	<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
 	<% @events.each do |event| %>
 	  <li href="<%= event.id %>" linkto="event">
 	    <div class="vote">
@@ -89,10 +89,10 @@
 		THIS<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
 	      </div>
 	      <div class="day">
-		SUN<%# day_of_week[event.date.wday] %>
+			<%= day_of_week[event.occurrences.first.start.wday] %>
 	      </div>
 	      <div class="time">
-		 05:00pm<%# event.time.strftime("%I:%M%P") %>
+		 	<%= event.occurrences.first.start.to_time.strftime("%I:%M%P") %>
 	      </div>
 	    </div>
 	    <div class="one">
@@ -115,8 +115,8 @@
       <div class="inner">
 	<img class="map" src="" style="float: left;">
 	<div class="details">	
-	  <div class="time one">1:00pm to 7:00pm</div>
-	  <div class="time two">Friday, May 13th</div>
+	  <div class="time one"></div>
+	  <div class="time two"></div>
 	  <br />
 	  <div class="venue"><a linkto="venue" href="1"></a></div>
 	  <div class="address one"></div>

@@ -74,8 +74,8 @@ class EventsController < ApplicationController
     # find occurrences that start between params[:start] and params[:end]
     if(params[:start] || params[:end])
 
-      event_start = Time.at(params[:start] || 0).to_s
-      event_end = Time.at(params[:end] || 0).to_s
+      event_start = DateTime.parse(params[:start] || 0).to_s
+      event_end = DateTime.parse(params[:end] || 0).to_s
 
       if params[:start] && params[:end]
         @occurrences = Occurrence.where("start >= ? AND start <= ?", event_start, event_end)

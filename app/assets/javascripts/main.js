@@ -33,7 +33,14 @@ $(function() {
     $(this).toggleClass('selected');  
   });
 
-  $('#content .sidebar .inner .filter.date .date ').datepicker();
+  $('#content .sidebar .inner .filter.date .date ').datetimepicker({
+    ampm: true,
+    showMinute: false,
+    hour: (new Date()).getHours(),
+    dateFormat: 'D m/d',
+    timeFormat: 'h:mmtt',
+    separator: ' @ '
+  });
 
   $('.mode .overlay').click(function() {   
     history.pushState({}, "main mode", "/");
@@ -89,6 +96,10 @@ function modal(thing) {
   if(thing.type === "event") {
     $.getJSON('/events/show/' + thing.id + '.json', function(event) {
       console.log(event);
+
+      start = new Date(event.occurrences[0].start);
+      $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
+      $('.mode.event .time.two').html(start.toString("h:mmtt"));
       
       $('.mode.event h1').html(event.title);
       $('.mode.event .venue a').html(event.venue.name);
