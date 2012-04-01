@@ -5,7 +5,6 @@ class Price
   ONE = 5
   TWO = 10
   THREE = 25
-  FOUR = 50
 end
 
 class EventsController < ApplicationController
@@ -28,7 +27,10 @@ class EventsController < ApplicationController
       if(params["venue-type"] == "existing")
         params[:event].delete("venue_attributes")
       end
+
       puts params
+
+      params[:event]["occurrences_attributes"]["0"]["day_of_week"] = Date.parse(params[:event]["occurrences_attributes"]["0"]["start(1i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(2i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(3i)"]).wday
       @event = Event.new(params[:event])
       @event.save
     end
@@ -71,35 +73,34 @@ class EventsController < ApplicationController
 
     @events = Event.search params[:search]
 
-    # find occurrences that start between params[:start] and params[:end]
-    if(params[:start] || params[:end])
+    # find occurrences that start between params[:start] and params[:end] and are on params[:day] day of the week 
+    if(params[:start] || params[:end] || params[:day])
 
-      event_start = DateTime.parse(params[:start] || 0).to_s
-      event_end = DateTime.parse(params[:end] || 0).to_s
+      event_start = DateTime.parse(params[:start] || "1900-01-01").to_s
+      event_end = DateTime.parse(params[:end] || "9999-12-31").to_s
 
-      if params[:start] && params[:end]
-        @occurrences = Occurrence.where("start >= ? AND start <= ?", event_start, event_end)
-      elsif params[:start]
-        @occurrences = Occurrence.where("start >= ?", event_start)
-      else
-        @occurrences = Occurrence.where("start <= ?", event_end)
-      end
+      event_days = params[:day].split(',')
       
+      @occurrences = Occurrence.where("start >= ? AND start <= ? AND day_of_week IN (?)", event_start, event_end, event_days)
+      
+      puts @occurrences
       # get events of those occurrences
       @events = @events & @occurrences.collect{ |o| o.event }
     end
 
     #filter by location
-    if(params[:lat_min] && params[:lon_min] && params[:lat_max] && params[:lon_max])
-      @events = @events.find_all {|e| (params[:lat_min]..params[:lat_max]).include?(e.latitude) && (params[:lon_min]..params[:lon_max]).include?(e.longitude) }
+    if(params[:lat_min] && params[:long_min] && params[:lat_max] && params[:long_max])
+      @events = @events.find_all {|e| (params[:lat_min]..params[:lat_max]).include?(e.latitude) && (params[:long_min]..params[:long_max]).include?(e.longitude) }
     end
 
     # filter by price/[tags]
+    # TODO
+
     # filter by offset and amount
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @events }
+      format.json { render json: @events.to_json(:include => [:occurrences, :venue]) }
     end
   end
 

@@ -6,8 +6,6 @@ end
 
 class Recurrence < ActiveRecord::Base
   has_many :occurrences, :dependent => :destroy
-  # validates :start, :presence => true
-  # validates :end, :presence => true
 
   def next_occurrence(time)
     until_time = (range_end && range_end.to_time < Time.now.advance(:years => 1)) ? range_end.to_time : Time.now.advance(:years => 1)
@@ -81,7 +79,7 @@ class Recurrence < ActiveRecord::Base
       event_length = self.end - self.start
       start_datetime = counter_time.advance(:hours => self.start.to_time.hour, :minutes => self.start.to_time.min).to_datetime
       end_datetime = start_datetime.to_time.advance(:hours => event_length.to_i/3600, :minutes => (event_length.to_i%3600)/60).to_datetime
-      occurrences.build(:start => start_datetime, :end => end_datetime, :event_id => self.event_id)
+      occurrences.build(:start => start_datetime, :end => end_datetime, :event_id => self.event_id, :day_of_week => start_datetime.to_date.wday)
       
       #puts "occurrence created at " + start_datetime.to_s
 
