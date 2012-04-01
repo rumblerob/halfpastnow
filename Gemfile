@@ -9,7 +9,7 @@ gem 'pg'
 gem 'thin'
 
 gem 'thinking-sphinx', '2.0.11'
-gem 'flying-sphinx',   '0.6.1'
+gem 'flying-sphinx',   '0.6.4'
 
 gem 'admin_data', '>= 1.1.16'
 
