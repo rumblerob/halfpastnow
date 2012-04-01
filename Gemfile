@@ -7,6 +7,7 @@ gem 'rails', '3.1.3'
 
 gem 'pg'
 gem 'thin'
+
 gem 'thinking-sphinx', '2.0.11'
 gem 'flying-sphinx',   '0.6.1'
 
