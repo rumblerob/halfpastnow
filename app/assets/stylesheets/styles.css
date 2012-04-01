@@ -205,9 +205,31 @@ H6
   background: #13133A;
   /*opacity: .5;*/
 }
-#content .sidebar .inner .filter.price SPAN, #content .sidebar .inner .filter.day SPAN 
+#content .sidebar .inner .filter.price SPAN, #content .sidebar .inner .filter.day SPAN, #content .sidebar .inner .filter.date SPAN
 {
   opacity: .5;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#content .sidebar .inner .filter.day SPAN.selected, #content .sidebar .inner .filter.price SPAN.selected, #content .sidebar .inner .filter.date SPAN.selected 
+{
+  opacity:1;  
+}
+#content .sidebar .inner .filter.date .custom-radio.selected {
+  padding-bottom:6px;
+  margin-bottom:-1px;
+}
+#content .sidebar .inner .filter.date .custom-select
+{
+  background: #13133A;
+  color: white;
+  margin: 1px 1px 0 5px;
+  padding: 5px;
+  display:none;
 }
 #content .sidebar .inner .filter INPUT
 {
@@ -225,6 +247,8 @@ H6
   text-align: right;
   padding-left: 6px;
   padding-right: 6px;
+  background-color: white;
+  color:#13133A;
 }
 #content .sidebar .inner .filter.date INPUT.start.date
 {
@@ -253,27 +277,36 @@ H6
   margin-right: 1px;
   border-radius: 1px;
 }
+#content .sidebar .inner .filter.date SPAN
+{
+  font-size: 14px;
+  margin-top: 3px;
+  padding: 5px 12px 5px 0;
+  cursor: pointer;
+}
+#content .sidebar .inner .filter.date SPAN .radio
+{
+  display: inline-block;
+  position: relative;
+  left: -2px;
+  top: -0.9px;
+  margin-right: 2px;
+  font-size: 18px;
+}
 #content .sidebar .inner .filter.day SPAN
 {
   font-size: 14px;
   margin-top: 3px;
   padding: 4px 5px;
-  cursor:default;
+  cursor:pointer;
 }
-#content .sidebar .inner .filter.day SPAN.selected 
-{
-  opacity:1;  
-}
+
 #content .sidebar .inner .filter.price SPAN
 {
   font-size: 14px;
   margin-top: 3px;
   padding: 4px 11px;
-  cursor:default;
-}
-#content .sidebar .inner .filter.price SPAN.selected 
-{
-  opacity:1;  
+  cursor:pointer;
 }
 #content .sidebar .inner .filter.distance .distances
 {
@@ -340,7 +373,7 @@ H6
   margin: 5px 10px;
   text-transform: uppercase;
 }
-#content .main .inner .header SPAN
+#content .main .inner .header .location
 {
   color: #242455;
 }
@@ -349,6 +382,10 @@ H6
   padding: 10px;
   height: 60px;
   border-radius: 8px 0 0 8px;
+}
+#content .main .inner .events-seed
+{
+  display: none;
 }
 #content .main .inner .events LI:hover
 {
@@ -566,5 +603,3 @@ html,body {
 .mode .window .menu div.selected {
   display:block;
 }
-
-

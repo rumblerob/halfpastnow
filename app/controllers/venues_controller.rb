@@ -89,23 +89,27 @@ class VenuesController < ApplicationController
             params_event[1].delete("recurrences_attributes")
           end
         end
-        if params_event[1]["occurrences_attributes"] 
+        if params_event[1]["occurrences_attributes"]
           params_event[1]["occurrences_attributes"].each_with_index do |params_occurrence, index|
             puts "start(4i): " + params_occurrence[1]["start(4i)"]
-            if params_occurrence[1]["start(4i)"] == "" || params_occurrence[1]["start(5i)"] == "" || params_occurrence[1]["end(4i)"] == "" || params_occurrence[1]["end(5i)"] == ""  
+            if params_occurrence[1]["start(4i)"] == "" || params_occurrence[1]["start(5i)"] == ""
               puts "deleting occurrence:"
               puts index
               puts params_event[1]["occurrences_attributes"][index.to_s]
               params_event[1]["occurrences_attributes"].delete(index.to_s)
+            else
+              params_occurrence[1]["day_of_week"] = Date.parse(params_occurrence[1]["start(1i)"] + "-" + params_occurrence[1]["start(2i)"] + "-" + params_occurrence[1]["start(3i)"]).wday
             end
           end
         end
         if params_event[1]["recurrences_attributes"]
           params_event[1]["recurrences_attributes"].each do |params_recurrence|
             puts "start(4i): " + params_recurrence[1]["start(4i)"]
-            if params_recurrence[1]["start(4i)"] == "" || params_recurrence[1]["start(5i)"] == "" || params_recurrence[1]["end(4i)"] == "" || params_recurrence[1]["end(5i)"] == ""  
+            if params_recurrence[1]["start(4i)"] == "" || params_recurrence[1]["start(5i)"] == ""  
               puts "deleting recurrence"
               params_recurrence.shift(2)
+            else
+              params_recurrence[1]["day_of_week"] = Date.parse(params_recurrence[1]["start(1i)"] + "-" + params_recurrence[1]["start(2i)"] + "-" + params_recurrence[1]["start(3i)"]).wday
             end
           end
         end

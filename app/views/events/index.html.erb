@@ -1,3 +1,37 @@
+<%# TODO: put this stuff in the controller eventually %>
+<% @now = DateTime.now.change(:hour => 0) %>
+<% @day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+<%
+	def eventListElement (event)
+
+%>
+ 	<li href="<%= event ? event.id : "" %>" linkto="event" class="linkto">
+	    <div class="vote">
+	      <img src="/assets/upvote7.png" class="upvote" />
+	      <img src="/assets/downvote7.png" class="downvote" />
+	    </div>
+	    <div class="when sun">
+	      <div class="mod">
+			<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
+			<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
+	      </div>
+	      <div class="day">
+			<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
+	      </div>
+	      <div class="time">
+		 	<%= event ? event.occurrences.first.start.to_time.strftime("%I:%M%P") : "" %>
+	      </div>
+	    </div>
+	    <div class="one">
+	      <span class="name"><%= event ? event.title : "" %></span>
+	      <a class="venue linkto" linkto="venue" href="<%= event ? event.venue.id : "" %>"><%= event ? event.venue.name : "" %></a>
+	      <div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
+	    </div>
+	  </li>
+<%
+	end
+%>
+
 <script type="text/javascript">
   $(function() {
       var event_id = <%= params[:event_id] || 0 %>;
@@ -8,6 +42,8 @@
       if(venue_id != 0) {
         modal({type: "venue", id: venue_id});      
       }
+
+      filter.search = "<%= params[:search] %>";
   });
 </script>
 <div id="body">
@@ -41,11 +77,12 @@
 	<h3>filter events by</h3>
 	<div class="filter date">
 	  <h5>date + time</h5>
-	  from <input type="text" class="start date" placeholder="now"/><br/>to <input type="text" class="end date" placeholder="forever"/>
+	  <span class="selected"><div class="radio">&#9687;</div> today</span><span><div class="radio">&#9687;</div> tomorrow</span><span class="custom-radio"><div class="radio">&#9687;</div> custom</span>
+	  <div class="custom-select">from <input type="text" class="start date" placeholder="now"/><br/>to <input type="text" class="end date" placeholder="forever"/></div>
 	</div>
 	<div class="filter day">
 	  <h5>day of the week</h5>
-	  <span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span><span class="selected">sun</span>
+	  <span class="selected">sun</span><span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span>
 	</div><!--
 	<div class="filter distance">
 	  <h5>distance</h5>
@@ -73,35 +110,20 @@
     </div>
     <div class="main">
       <div class="inner">
-	<div class="header"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %> around <span>Austin</span></div>
+	<div class="header"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> around <span class="location">Austin</span></div>
 	<ul class="events">
-	<%# TODO: put this stuff in the controller eventually %>
-	<% now = DateTime.now.change(:hour => 0) %>
-	<% day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
-	<% @events.each do |event| %>
-	  <li href="<%= event.id %>" linkto="event">
-	    <div class="vote">
-	      <img src="/assets/upvote7.png" class="upvote" />
-	      <img src="/assets/downvote7.png" class="downvote" />
-	    </div>
-	    <div class="when sun">
-	      <div class="mod">
-		THIS<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
-	      </div>
-	      <div class="day">
-			<%= day_of_week[event.occurrences.first.start.wday] %>
-	      </div>
-	      <div class="time">
-		 	<%= event.occurrences.first.start.to_time.strftime("%I:%M%P") %>
-	      </div>
-	    </div>
-	    <div class="one">
-	      <span class="name"><%= event.title %></span>
-	      <a class="venue" linkto="venue" href="<%= event.venue.id %>"><%= event.venue.name %></a>
-	      <div class="description"><%= truncate(strip_tags(event.description), :length => 300) %></div>
-	    </div>
-	  </li>
-	<% end %>
+	
+	<% 	@events.each do |event| 
+	   		eventListElement(event) 
+	 	end
+	 	#generate dynamic li's off this seed
+	 	 %>
+	</ul>
+	<ul class="events-seed">
+		<%
+			eventListElement(nil)
+		%>
+	</ul>
       </div>
     </div>
   </div>
@@ -118,7 +140,7 @@
 	  <div class="time one"></div>
 	  <div class="time two"></div>
 	  <br />
-	  <div class="venue"><a linkto="venue" href="1"></a></div>
+	  <div class="venue"><a linkto="venue" href=""  class="linkto"></a></div>
 	  <div class="address one"></div>
 	  <div class="address two"></div>
 	  <br />

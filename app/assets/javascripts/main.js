@@ -1,3 +1,5 @@
+var day_of_week = day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
 window.addEventListener("popstate", function(e) {
   console.log(e);
   var query = e.target.location.search;
@@ -8,8 +10,106 @@ window.addEventListener("popstate", function(e) {
   }
 });
 
+var filter = {
+  dateType: 0,
+  start: null,
+  end: null,
+  day: [0,1,2,3,4,5,6],
+  price: [0,1,2,3],
+  latMin: null,
+  latMax: null,
+  longMin: null,
+  longMax: null,
+  offset: 0,
+  search: null
+};
+
+// on change of filter
+function filterChange() {
+  updateFilter();
+  pullEvents();
+  //put events in page
+}
+
+function updateFilter() {
+  filter.dateType = $('#content .sidebar .inner .filter.date span.selected').first().index() - 1;
+  filter.start = $('#content .sidebar .inner .filter.date .start.date').datepicker("getDate");
+  filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
+  filter.day = [];
+  $('#content .sidebar .inner .filter.day span.selected').each(function () {
+    filter.day.push($(this).index() - 1);
+  });
+  filter.price = [];
+  $('#content .sidebar .inner .filter.price span.selected').each(function () {
+    filter.price.push($(this).index() - 1);
+  });
+}
+
+// this gets called on infinite scroll and on filter changes
+function pullEvents() {
+  var query = "dateType=" + filter.dateType;
+  if(filter.start)
+    query += "&start=" + filter.start.getTime();
+  if(filter.end)
+    query += "&end=" + filter.end.getTime();
+  if(filter.search)
+    query += "&search=" + filter.search;
+  if(filter.latMin)
+    query += "&lat_min=" + filter.latMin;
+  if(filter.latMax)
+    query += "&lat_max=" + filter.latMax;
+  if(filter.longMin)
+    query += "&long_min=" + filter.longMin;
+  if(filter.longMax)
+    query += "&long_max=" + filter.longMax;
+  if(filter.day.length > 0)
+    query += "&day=" + filter.day.reduce(function(a,b) { return a + "," + b; },"").substring(1);
+  if(filter.price.length > 0)
+    query += "&price=" + filter.price.reduce(function(a,b) { return a + "," + b; },"").substring(1);
+  if(filter.offset)
+    query += "&offset=" + filter.offset;
+
+  console.log(query);
+
+  $.getJSON("/events/find?" + query, function (events) {
+    console.log(events);
+    for(var i in events) {
+      console.log(events[i].occurrences[0].start.substr(0,19));
+      var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
+      var li = $($('#content .main .inner .events-seed li:last-child').clone().wrap('<ul>').parent().html());
+      li.attr("href", events[i].id);
+      li.find(".mod").html(start.toString("MM/dd"));
+      li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
+      li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
+      li.find(".one .name").html(events[i].title);
+      li.find(".one .venue").html(events[i].venue.name);
+      li.find(".one .venue").attr("href",events[i].venue_id);
+      li.find(".one .description").html(events[i].description);
+      //console.log("html:" + li.html());
+      li.prependTo('#content .main .inner .events-seed');
+    }
+    $('#content .main .inner .events').empty();
+    $('#content .main .inner .header .count').html(events.length + " event" + ((events.length == 1) ? "" : "s"));
+    $('#content .main .inner .events-seed li:not(:last-child)').each(function() {
+      console.log("html:" + $(this).html());
+      $(this).prependTo('#content .main .inner .events');
+    });
+  });
+}
+
+function toggleSelection() {
+  var thisSelected = ($(this).hasClass('selected'));
+  if(thisSelected && $(this).siblings('span.selected').length == $(this).siblings('span').length) {
+    $(this).siblings('span').removeClass('selected');
+  } else if (thisSelected && $(this).siblings('span.selected').length == 0){
+    $(this).siblings('span').addClass('selected');
+  } else {
+    $(this).toggleClass('selected');
+  }
+}
+
 $(function() {
-  
+  /*
   $('#content .sidebar .inner .filter.distance .distances .selected').click(function(event) {
       event.stopPropagation();
       $('#content .sidebar .inner .filter.distance .distances').toggleClass("focus");
@@ -23,20 +123,29 @@ $(function() {
 
   $('html').click(function() {
     $('#content .sidebar .inner .filter.distance .distances').removeClass('focus');
+  });*/
+
+  $('#content .sidebar .inner .filter.date span').click(function () {
+    $(this).siblings('span').removeClass('selected');
+    $(this).addClass('selected');
+    if($(this).hasClass('custom-radio'))
+      $(this).siblings('.custom-select').show();
+    else
+      $(this).siblings('.custom-select').hide();
   });
 
-  $('#content .sidebar .inner .filter.price span').click(function() { 
-    $(this).toggleClass('selected');  
-  });
+  $('#content .sidebar .inner .filter.price span').click(toggleSelection);
+  $('#content .sidebar .inner .filter.day span').click(toggleSelection);
 
-  $('#content .sidebar .inner .filter.day span').click(function() { 
-    $(this).toggleClass('selected');  
-  });
+  $('#content .sidebar .inner .filter.price span').click(filterChange);
+  $('#content .sidebar .inner .filter.day span').click(filterChange);
+  $('#content .sidebar .inner .filter.date span:not(.custom-radio)').click(filterChange);
 
   $('#content .sidebar .inner .filter.date .date ').datetimepicker({
     ampm: true,
     showMinute: false,
     hour: (new Date()).getHours(),
+    minute: 0,
     dateFormat: 'D m/d',
     timeFormat: 'h:mmtt',
     separator: ' @ '
@@ -59,16 +168,23 @@ $(function() {
     $(this).parent().parent().children("div").eq(index).addClass("selected");
   });
   
-  $('[linkto]').click(function(event) {
-    var thing = {type:$(this).attr("linkto"), id: $(this).attr("href")};
-    history.pushState(thing, thing.type + " mode", "?" + thing.type + "_id=" + thing.id);
-    if($(this).is("#content .main .events li .venue")) {
-       event.stopPropagation();
-    }
-    modal(thing);
-    return false;
-  });
+  
+
+  $('#content .main .inner .events').on("click", ".linkto", loadModal);
+
+  // oh god what a grody hack. TODO: find out why this happens and fixitfixitfixit
+  $(".window .linkto").click(loadModal);
 });
+
+function loadModal(event) {
+  var thing = {type:$(this).attr("linkto"), id: $(this).attr("href")};
+  history.pushState(thing, thing.type + " mode", "?" + thing.type + "_id=" + thing.id);
+  if($(this).is("#content .main .events li .venue")) {
+     event.stopPropagation();
+  }
+  modal(thing);
+  return false;
+}
 
 //only works for one parameter. lol
 function parsequery(query) {

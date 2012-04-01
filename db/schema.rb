@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120324205639) do
+ActiveRecord::Schema.define(:version => 20120401054254) do
 
   create_table "events", :force => true do |t|
     t.string   "title"
@@ -36,6 +36,7 @@ ActiveRecord::Schema.define(:version => 20120324205639) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "recurrence_id"
+    t.integer  "day_of_week"
   end
 
   add_index "occurrences", ["event_id"], :name => "index_occurrences_on_event_id"
