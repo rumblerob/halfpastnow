@@ -1,0 +1,196 @@
+<%# TODO: put this stuff in the controller eventually %>
+<% @now = DateTime.now.change(:hour => 0) %>
+<% @day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+<%
+	def eventListElement (event)
+
+%>
+ 	<li href="<%= event ? event.id : "" %>" linkto="event" class="linkto">
+	    <div class="vote">
+	      <img src="/assets/upvote7.png" class="upvote" />
+	      <img src="/assets/downvote7.png" class="downvote" />
+	    </div>
+	    <div class="when sun">
+	      <div class="mod">
+			<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
+			<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
+	      </div>
+	      <div class="day">
+			<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
+	      </div>
+	      <div class="time">
+		 	<%= event ? event.occurrences.first.start.to_time.strftime("%I:%M%P") : "" %>
+	      </div>
+	    </div>
+	    <div class="one">
+	      <span class="name"><%= event ? event.title : "" %></span>
+	      <a class="venue linkto" linkto="venue" href="<%= event ? event.venue.id : "" %>"><%= event ? event.venue.name : "" %></a>
+	      <div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
+	    </div>
+	  </li>
+<%
+	end
+%>
+
+<script type="text/javascript">
+  $(function() {
+      var event_id = <%= params[:event_id] || 0 %>;
+      var venue_id = <%= params[:venue_id] || 0 %>;
+      if(event_id != 0) {
+        modal({type: "event", id: event_id});
+      }
+      if(venue_id != 0) {
+        modal({type: "venue", id: venue_id});      
+      }
+
+      filter.search = "<%= params[:search] %>";
+  });
+</script>
+<div id="body">
+  <div id="header">
+    <div class="one">
+      <img class="logo" src="/assets/halfpastnow.png" />
+      <div class="menu-element">about us</div>
+      <div class="menu-element">blog</div>
+      <div class="menu-element">contact us</div>
+      <div class="menu-element right">login / signup</div>
+    </div>
+    <div class="two">
+      <div class="inner">
+	<div class="search">
+
+		<%= form_tag("/events", :method => "get") do %>
+		  <%= label_tag(:q, "find") %>
+		  <%= text_field_tag(:search, params[:search]) %>
+		  around
+		  <input type="text" class="location" placeholder="a point in space"/>
+		  <%= image_submit_tag("search2.png") %>
+		<% end %>
+	
+	</div>
+      </div>
+    </div>
+  </div>
+  <div id="content">
+    <div class="sidebar">
+      <div class="inner">
+	<h3>filter events by</h3>
+	<div class="filter date">
+	  <h5>date + time</h5>
+	  <span class="selected"><div class="radio">&#9687;</div> today</span><span><div class="radio">&#9687;</div> tomorrow</span><span class="custom-radio"><div class="radio">&#9687;</div> custom</span>
+	  <div class="custom-select">from <input type="text" class="start date" placeholder="now"/><br/>to <input type="text" class="end date" placeholder="forever"/></div>
+	</div>
+	<div class="filter day">
+	  <h5>day of the week</h5>
+	  <span class="selected">sun</span><span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span>
+	</div><!--
+	<div class="filter distance">
+	  <h5>distance</h5>
+	  <div class="distances">
+	    <div>
+	      <span class="selected" val="0">everywhere</span>
+	      <span val="0">everywhere</span>
+	      <span val=".5">stumbling distance (&frac12; mi)</span>
+	      <span val="1">walking distance (1 mi)</span>
+	      <span val="2">biking distance (2 mi)</span>
+	      <span val="5">driving distance (5 mi)</span>
+	    </div>
+	  </div>
+	</div>-->
+	<div class="filter price">
+	  <h5>price</h5>
+	  <span class="selected">free</span><span class="selected">$</span><span class="selected">$$</span><span class="selected">$$$</span><span class="selected">$$$$</span>
+	</div>
+	<div class="filter tags">
+	  <h5>tags</h5>
+	  <input type="text" class="tags" />
+	  <div class="tag-library"></div>
+	</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="inner">
+	<div class="header"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> around <span class="location">Austin</span></div>
+	<ul class="events">
+	
+	<% 	@events.each do |event| 
+	   		eventListElement(event) 
+	 	end
+	 	#generate dynamic li's off this seed
+	 	 %>
+	</ul>
+	<ul class="events-seed">
+		<%
+			eventListElement(nil)
+		%>
+	</ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="event mode">
+  <div class="overlay">
+    <div class="window">
+      <div class="h1under left"></div>
+      <div class="h1under right"></div>
+      <h1></h1>
+      <div class="inner">
+	<img class="map" src="" style="float: left;">
+	<div class="details">	
+	  <div class="time one"></div>
+	  <div class="time two"></div>
+	  <br />
+	  <div class="venue"><a linkto="venue" href=""  class="linkto"></a></div>
+	  <div class="address one"></div>
+	  <div class="address two"></div>
+	  <br />
+	  <div class="price"><strong>Price:</strong> <span></span></div>
+	</div>
+	<div class="menu">
+	  <ul>
+	    <li class="selected">description</li>
+	    <li>details</li>
+	    <li>gallery</li>
+	    <li>comments <strong>(5)</strong></li>
+	  </ul>
+	  <div class="selected">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to heaven, we were all going direct the other way - in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.</div>
+	  <div>details</div>
+	  <div>gallery</div>
+	  <div>comments</div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="venue mode">
+  <div class="overlay">
+    <div class="window">
+      <div class="h1under left"></div>
+      <div class="h1under right"></div>
+      <h1></h1>
+      <div class="inner">
+	<img class="map" src="" style="float: left;">
+	<div class="details">
+	  <div class="address one">2100 Barton Springs Road</div>
+	  <div class="address two">Austin, TX 78704</div>
+	  <br />
+	  <div class="price"><strong>Hours:</strong> Daily 5am-10pm</div>
+	</div>
+	<div class="menu">
+	  <ul>
+	    <li class="selected">events</li>
+	    <li>description</li>
+	    <li>details</li>
+	    <li>gallery</li>
+	    <li>comments <strong>(2)</strong></li>
+	  </ul>
+	  <div class="selected">events</div>
+	  <div>description</div>
+	  <div>details</div>
+	  <div>gallery</div>
+	  <div>comments</div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>

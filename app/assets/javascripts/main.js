@@ -15,7 +15,7 @@ var filter = {
   start: null,
   end: null,
   day: [0,1,2,3,4,5,6],
-  price: [0,1,2,3],
+  price: [0,1,2,3,4],
   latMin: null,
   latMax: null,
   longMin: null,
@@ -37,11 +37,11 @@ function updateFilter() {
   filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
   filter.day = [];
   $('#content .sidebar .inner .filter.day span.selected').each(function () {
-    filter.day.push($(this).index() - 1);
+    filter.day.push($(this).index());
   });
   filter.price = [];
   $('#content .sidebar .inner .filter.price span.selected').each(function () {
-    filter.price.push($(this).index() - 1);
+    filter.price.push($(this).index());
   });
 }
 
@@ -73,11 +73,12 @@ function pullEvents() {
 
   $.getJSON("/events/find?" + query, function (events) {
     console.log(events);
+    clearMarkers();
     for(var i in events) {
-      console.log(events[i].occurrences[0].start.substr(0,19));
       var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
       var li = $($('#content .main .inner .events-seed li:last-child').clone().wrap('<ul>').parent().html());
       li.attr("href", events[i].id);
+      li.find(".index").html(parseInt(i) + 1);
       li.find(".mod").html(start.toString("MM/dd"));
       li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
       li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
@@ -87,6 +88,8 @@ function pullEvents() {
       li.find(".one .description").html(events[i].description);
       //console.log("html:" + li.html());
       li.prependTo('#content .main .inner .events-seed');
+
+      placeMarker(events[i].venue.latitude, events[i].venue.longitude, i);
     }
     $('#content .main .inner .events').empty();
     $('#content .main .inner .header .count').html(events.length + " event" + ((events.length == 1) ? "" : "s"));
@@ -167,12 +170,28 @@ $(function() {
     $(this).parent().parent().children("div").removeClass("selected");
     $(this).parent().parent().children("div").eq(index).addClass("selected");
   });
-  
-  
 
-  $('#content .main .inner .events').on("click", ".linkto", loadModal);
+  $('#content .main .inner .events').on("mouseenter", "li", function() {
+    google.maps.event.trigger(markers[$(this).index()], 'mouseover');
+  });
+  
+  $('#content .main .inner .events').on("mouseleave", "li", function() {
+    google.maps.event.trigger(markers[$(this).index()], 'mouseout');
+  });
+
+  $('#body').scroll(function() {
+    console.log("scrolling");
+    $('#content .main .inner .events li:in-viewport').each(function() {
+      console.log($(this).index() + 1);
+    });
+  });
+
+  $(window).resize(function() {
+    console.log("resizing");
+  });
 
   // oh god what a grody hack. TODO: find out why this happens and fixitfixitfixit
+  $('#content .main .inner .events').on("click", ".linkto", loadModal);
   $(".window .linkto").click(loadModal);
 });
 

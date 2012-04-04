@@ -6,15 +6,17 @@
   <%= javascript_include_tag "application" %>
   <%= javascript_include_tag "jquery-ui" %>
   <%= javascript_include_tag "jquery-ui-timepicker-addon" %>
+  <%= javascript_include_tag "viewport" %>
   <%= javascript_include_tag "date" %>
   <%= javascript_include_tag "main" %>
-
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCuX99Cn10qLVF0AQNRzduy012YqkaIXgk&sensor=false"></script>
+  
   <%= stylesheet_link_tag    "styles" %>
   <%= stylesheet_link_tag    "jquery-ui" %>
 
   <%= csrf_meta_tags %>
 </head>
-<body>
+<body onload="if(typeof initialize !== 'undefined') initialize();">
 
 <%= yield %>
 

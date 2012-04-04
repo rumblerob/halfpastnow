@@ -83,14 +83,14 @@ class EventsController < ApplicationController
       
       @occurrences = Occurrence.where("start >= ? AND start <= ? AND day_of_week IN (?)", event_start, event_end, event_days)
       
-      puts @occurrences
+      # puts @occurrences
       # get events of those occurrences
       @events = @events & @occurrences.collect{ |o| o.event }
     end
 
     #filter by location
     if(params[:lat_min] && params[:long_min] && params[:lat_max] && params[:long_max])
-      @events = @events.find_all {|e| (params[:lat_min]..params[:lat_max]).include?(e.latitude) && (params[:long_min]..params[:long_max]).include?(e.longitude) }
+      @events = @events.find_all {|e| ((params[:lat_min].to_f)..(params[:lat_max].to_f)).include?(e.venue.latitude) && ((params[:long_min].to_f)..(params[:long_max].to_f)).include?(e.venue.longitude) }
     end
 
     # filter by price/[tags]
