@@ -46,6 +46,8 @@ module Myapp
 
     # Enable the asset pipeline
     config.assets.enabled = true
+    
+    config.assets.initialize_on_precompile = false
 
     config.assets.precompile += ['admin_data.css', 'admin_data.js']
 
