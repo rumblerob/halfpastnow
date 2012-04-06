@@ -14,6 +14,7 @@ task :update_occurrences => :environment do
 			#if it can't, and the occurrence is the only occurrence of the recurrence, then destroy the recurrence
 		if occurrence.recurrence.nil?
 			occurrence.destroy
+			# TODO: delete the event
 		else
 			if (!occurrence.recurrence.gen_occurrences(1) && occurrence.recurrence.occurrences.count == 1)
 				occurrence.recurrence.destroy

@@ -1,40 +1,3 @@
-<%# TODO: put this stuff in the controller eventually %>
-<% @now = DateTime.now.change(:hour => 0) %>
-<% @day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
-<%
-	def eventListElement (event, index)
-
-%>
-	<li href="<%= event ? event.id : "" %>" linkto="event" class="linkto">
-		<div class="index">
-			<%= index ? (index + 1) : "" %>
-		</div>
-		<div class="when sun">
-			<div class="mod">
-				<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
-				<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
-			</div>
-			<div class="day">
-				<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
-			</div>
-			<div class="time">
-				<%= event ? event.occurrences.first.start.to_time.strftime("%I:%M%P") : "" %>
-			</div>
-		</div>
-		<div class="one">
-			<span class="name"><%= event ? event.title : "" %></span>
-			<a class="venue linkto" linkto="venue" href="<%= event ? event.venue.id : "" %>"><%= event ? event.venue.name : "" %></a>
-			<div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
-		</div>
-		<div style="display:none;">
-			<div class="latitude"><%= event ? event.venue.latitude : "" %></div>
-			<div class="longitude"><%= event ? event.venue.longitude : "" %></div>
-		</div>
-	</li>
-<%
-	end
-%>
-
 <script type="text/javascript">
 	var geocoder;
 	var map;
@@ -42,7 +5,7 @@
 
 	function initialize() {
 
-		$("#map").height($(window).height() - 201);
+		$("#map").height($(window).height() - $("#map").offset().top - 2 * parseInt($("#map").css("border-top-width")));
 		geocoder = new google.maps.Geocoder();
 		var latlng = new google.maps.LatLng(30.25, -97.75);
 		var myOptions = {
@@ -51,60 +14,21 @@
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			disableDefaultUI: true,
 			zoomControl: true,
+			scrollwheel: false,
 			zoomControlOptions: { position: google.maps.ControlPosition.TOP_RIGHT, style: google.maps.ZoomControlStyle.SMALL }
 		};
 		map = new google.maps.Map($("#map")[0], myOptions);
 
+		var locations = [];
 		$("#content .main .inner .events li").each(function(index) {
-			var lat = $(this).find(".latitude").html();
-			var long = $(this).find(".longitude").html();
-			console.log(lat + ", " + long);
-			placeMarker(lat, long, index);
+			var latitude = parseFloat($(this).find(".latitude").html());
+			var longitude = parseFloat($(this).find(".longitude").html());
+			locations.push({lat: latitude, long: longitude});
 		});
+
+		placeMarkers({points: locations});
 
 		google.maps.event.addListener(map, 'idle', boundsChanged);
-	}
-
-	var boundsChangedFlag = false;
-	function boundsChanged() {
-    	filter.latMin = map.getBounds().getSouthWest().lat();
-		filter.latMax = map.getBounds().getNorthEast().lat();
-		filter.longMin = map.getBounds().getSouthWest().lng();
-		filter.longMax = map.getBounds().getNorthEast().lng();
-    	console.log(filter);
-    	if(boundsChangedFlag) {
-    		filterChange();
-    	}
-    	boundsChangedFlag = true;
- 	}
-
-	function clearMarkers() {
-		for(var i in markers) {
-			markers[i].setMap(null);
-		}
-		markers = [];
-	}
-
-	function placeMarker(lat, long, number) {
-		var marker = new google.maps.Marker({
-			map: map,
-			position: new google.maps.LatLng(lat,long),
-			icon: "/assets/" + ((typeof number === "undefined") ? "symbol_fract12" : "number_" + (parseInt(number) + 1)) + ".png",
-			index: (parseInt(number) + 1)
-		});
-
-		markers.push(marker);
-
-		google.maps.event.addListener(marker, 'mouseover', function() {
-			console.log(marker);
-			marker.setIcon("/assets/hover_number_" + marker.index + ".png");
-			$("#content .main .inner .events LI:nth-child(" + marker.index + ")").addClass("hover");
-		});
-
-		google.maps.event.addListener(marker, 'mouseout', function() {
-			marker.setIcon("/assets/number_" + marker.index + ".png");
-			$("#content .main .inner .events LI:nth-child(" + marker.index + ")").removeClass("hover");
-		});
 	}
 
 	$(function() {
@@ -121,6 +45,47 @@
 	});
 
 </script>
+
+<%# TODO: put this stuff in the controller eventually %>
+<% @now = DateTime.now.change(:hour => 0) %>
+<% @day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+<%
+	def eventListElement (event, index)
+
+%>
+	<li>
+		<div class="index">
+			<%= index ? (index + 1) : "" %>
+		</div>
+		<div class="endex"></div>
+		<div class="when sun">
+			<div class="mod">
+				<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
+				<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
+			</div>
+			<div class="day">
+				<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
+			</div>
+			<div class="time">
+				<%= event ? event.occurrences.first.start.to_time.strftime("%I:%M%P") : "" %>
+			</div>
+		</div>
+		<div class="one">
+			<span href="<%= event ? event.id : "" %>" linkto="event" class="linkto name"><%= event ? event.title : "" %></span>
+			<a class="venue linkto" linkto="venue" href="<%= event ? event.venue.id : "" %>"><%= event ? event.venue.name : "" %></a>
+			<div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
+		</div>
+		<div style="display:none;">
+			<div class="latitude"><%= event ? event.venue.latitude : "" %></div>
+			<div class="longitude"><%= event ? event.venue.longitude : "" %></div>
+		</div>
+
+	</li>
+<%
+	end
+%>
+
+
 <div id="body">
 	<div id="header">
 		<div class="one">

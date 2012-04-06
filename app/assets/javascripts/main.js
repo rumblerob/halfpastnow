@@ -1,132 +1,4 @@
-var day_of_week = day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-
-window.addEventListener("popstate", function(e) {
-  console.log(e);
-  var query = e.target.location.search;
-  if(query !== "") {
-    modal(parsequery(query));
-  } else {
-    demodal();
-  }
-});
-
-var filter = {
-  dateType: 0,
-  start: null,
-  end: null,
-  day: [0,1,2,3,4,5,6],
-  price: [0,1,2,3,4],
-  latMin: null,
-  latMax: null,
-  longMin: null,
-  longMax: null,
-  offset: 0,
-  search: null
-};
-
-// on change of filter
-function filterChange() {
-  updateFilter();
-  pullEvents();
-  //put events in page
-}
-
-function updateFilter() {
-  filter.dateType = $('#content .sidebar .inner .filter.date span.selected').first().index() - 1;
-  filter.start = $('#content .sidebar .inner .filter.date .start.date').datepicker("getDate");
-  filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
-  filter.day = [];
-  $('#content .sidebar .inner .filter.day span.selected').each(function () {
-    filter.day.push($(this).index());
-  });
-  filter.price = [];
-  $('#content .sidebar .inner .filter.price span.selected').each(function () {
-    filter.price.push($(this).index());
-  });
-}
-
-// this gets called on infinite scroll and on filter changes
-function pullEvents() {
-  var query = "dateType=" + filter.dateType;
-  if(filter.start)
-    query += "&start=" + filter.start.getTime();
-  if(filter.end)
-    query += "&end=" + filter.end.getTime();
-  if(filter.search)
-    query += "&search=" + filter.search;
-  if(filter.latMin)
-    query += "&lat_min=" + filter.latMin;
-  if(filter.latMax)
-    query += "&lat_max=" + filter.latMax;
-  if(filter.longMin)
-    query += "&long_min=" + filter.longMin;
-  if(filter.longMax)
-    query += "&long_max=" + filter.longMax;
-  if(filter.day.length > 0)
-    query += "&day=" + filter.day.reduce(function(a,b) { return a + "," + b; },"").substring(1);
-  if(filter.price.length > 0)
-    query += "&price=" + filter.price.reduce(function(a,b) { return a + "," + b; },"").substring(1);
-  if(filter.offset)
-    query += "&offset=" + filter.offset;
-
-  console.log(query);
-
-  $.getJSON("/events/find?" + query, function (events) {
-    console.log(events);
-    clearMarkers();
-    for(var i in events) {
-      var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
-      var li = $($('#content .main .inner .events-seed li:last-child').clone().wrap('<ul>').parent().html());
-      li.attr("href", events[i].id);
-      li.find(".index").html(parseInt(i) + 1);
-      li.find(".mod").html(start.toString("MM/dd"));
-      li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
-      li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
-      li.find(".one .name").html(events[i].title);
-      li.find(".one .venue").html(events[i].venue.name);
-      li.find(".one .venue").attr("href",events[i].venue_id);
-      li.find(".one .description").html(events[i].description);
-      //console.log("html:" + li.html());
-      li.prependTo('#content .main .inner .events-seed');
-
-      placeMarker(events[i].venue.latitude, events[i].venue.longitude, i);
-    }
-    $('#content .main .inner .events').empty();
-    $('#content .main .inner .header .count').html(events.length + " event" + ((events.length == 1) ? "" : "s"));
-    $('#content .main .inner .events-seed li:not(:last-child)').each(function() {
-      console.log("html:" + $(this).html());
-      $(this).prependTo('#content .main .inner .events');
-    });
-  });
-}
-
-function toggleSelection() {
-  var thisSelected = ($(this).hasClass('selected'));
-  if(thisSelected && $(this).siblings('span.selected').length == $(this).siblings('span').length) {
-    $(this).siblings('span').removeClass('selected');
-  } else if (thisSelected && $(this).siblings('span.selected').length == 0){
-    $(this).siblings('span').addClass('selected');
-  } else {
-    $(this).toggleClass('selected');
-  }
-}
-
 $(function() {
-  /*
-  $('#content .sidebar .inner .filter.distance .distances .selected').click(function(event) {
-      event.stopPropagation();
-      $('#content .sidebar .inner .filter.distance .distances').toggleClass("focus");
-  });
-
-  $('#content .sidebar .inner .filter.distance .distances span').not('.selected').click(function(event) {
-    event.stopPropagation();
-    $('#content .sidebar .inner .filter.distance .distances .selected').html($(this).html());
-    $('#content .sidebar .inner .filter.distance .distances').removeClass('focus');
-  });
-
-  $('html').click(function() {
-    $('#content .sidebar .inner .filter.distance .distances').removeClass('focus');
-  });*/
 
   $('#content .sidebar .inner .filter.date span').click(function () {
     $(this).siblings('span').removeClass('selected');
@@ -179,21 +51,215 @@ $(function() {
     google.maps.event.trigger(markers[$(this).index()], 'mouseout');
   });
 
-  $('#body').scroll(function() {
-    console.log("scrolling");
-    $('#content .main .inner .events li:in-viewport').each(function() {
-      console.log($(this).index() + 1);
-    });
-  });
-
-  $(window).resize(function() {
-    console.log("resizing");
-  });
+  $('#body').scroll(showPageMarkers);
+  $('#body').scroll(lockMap);
+  
+  $(window).resize(showPageMarkers);
+  $(window).resize(lockMap);
 
   // oh god what a grody hack. TODO: find out why this happens and fixitfixitfixit
   $('#content .main .inner .events').on("click", ".linkto", loadModal);
   $(".window .linkto").click(loadModal);
+
+  mapOffset = $("#map").offset().top;
 });
+
+var mapOffset;
+
+var day_of_week = day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+window.addEventListener("popstate", function(e) {
+  var query = e.target.location.search;
+  if(query !== "") {
+    modal(parsequery(query));
+  } else {
+    demodal();
+  }
+});
+
+var filter = {
+  dateType: 0,
+  start: null,
+  end: null,
+  day: [0,1,2,3,4,5,6],
+  price: [0,1,2,3,4],
+  latMin: null,
+  latMax: null,
+  longMin: null,
+  longMax: null,
+  offset: 0,
+  search: null
+};
+
+var boundsChangedFlag = false;
+function boundsChanged() {
+  filter.latMin = map.getBounds().getSouthWest().lat();
+  filter.latMax = map.getBounds().getNorthEast().lat();
+  filter.longMin = map.getBounds().getSouthWest().lng();
+  filter.longMax = map.getBounds().getNorthEast().lng();
+  if(boundsChangedFlag) {
+    filterChange();
+  }
+  boundsChangedFlag = true;
+}
+
+function placeMarkers(params) {
+  if (typeof params.clear === 'undefined' || params.clear === true)
+    clearMarkers();
+  for(var i in params.points) {
+    placeMarker(params.points[i].lat, params.points[i].long);
+  }
+
+  showPageMarkers();
+}
+
+function clearMarkers() {
+  for(var i in markers) {
+    markers[i].setMap(null);
+  }
+  markers = [];
+}
+
+function placeMarker(lat, long) {
+  var i = markers.length;
+
+  var marker = new MarkerWithLabel({
+    map: map,
+    position: new google.maps.LatLng(lat,long),
+    icon: "/assets/marker.png",
+    index: (markers.length + 1),
+    labelContent: (markers.length + 1),
+    labelAnchor: new google.maps.Point(8, 34),
+    labelClass: "markerLabel" // the CSS class for the label
+  });
+
+  google.maps.event.addListener(marker, 'mouseover', function() {
+    marker.setIcon("/assets/marker_hover.png");
+    marker.set("labelStyle", { color: "#FFFFFF" });
+    $("#content .main .inner .events LI:nth-child(" + marker.index + ")").addClass("hover");
+    markers[i].foo = "bar";
+  });
+
+  google.maps.event.addListener(marker, 'mouseout', function() {
+    marker.setIcon("/assets/marker.png");
+    marker.set("labelStyle", {});
+    $("#content .main .inner .events LI:nth-child(" + marker.index + ")").removeClass("hover");
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    $("#content .main .inner .events LI:nth-child(" + marker.index + ") .name").click();
+  });
+
+  markers.push(marker);
+}
+
+var fuzz = 1;
+function showPageMarkers() {
+  var numVisibleEvents = $('#content .main .inner .events li:in-viewport').length;
+  if(numVisibleEvents > 0) {
+    var start = parseInt($('#content .main .inner .events li:in-viewport .index').html());
+    var end = start + numVisibleEvents - 1;
+    start -= fuzz; end += fuzz;
+    for(var i in markers) {
+      markers[i].setVisible(markers[i].index >= start && markers[i].index <= end);
+    }
+  }
+}
+
+// on change of filter
+function filterChange() {
+  updateFilter();
+  pullEvents();
+  //put events in page
+}
+
+function updateFilter() {
+  filter.dateType = $('#content .sidebar .inner .filter.date span.selected').first().index() - 1;
+  filter.start = $('#content .sidebar .inner .filter.date .start.date').datepicker("getDate");
+  filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
+  filter.day = [];
+  $('#content .sidebar .inner .filter.day span.selected').each(function () {
+    filter.day.push($(this).index());
+  });
+  filter.price = [];
+  $('#content .sidebar .inner .filter.price span.selected').each(function () {
+    filter.price.push($(this).index());
+  });
+}
+
+// this gets called on infinite scroll and on filter changes
+function pullEvents() {
+  var query = "dateType=" + filter.dateType;
+  if(filter.start)
+    query += "&start=" + filter.start.getTime();
+  if(filter.end)
+    query += "&end=" + filter.end.getTime();
+  if(filter.search)
+    query += "&search=" + filter.search;
+  if(filter.latMin)
+    query += "&lat_min=" + filter.latMin;
+  if(filter.latMax)
+    query += "&lat_max=" + filter.latMax;
+  if(filter.longMin)
+    query += "&long_min=" + filter.longMin;
+  if(filter.longMax)
+    query += "&long_max=" + filter.longMax;
+  if(filter.day.length > 0)
+    query += "&day=" + filter.day.reduce(function(a,b) { return a + "," + b; },"").substring(1);
+  if(filter.price.length > 0)
+    query += "&price=" + filter.price.reduce(function(a,b) { return a + "," + b; },"").substring(1);
+  if(filter.offset)
+    query += "&offset=" + filter.offset;
+
+  $.getJSON("/events/find?" + query, function (events) {
+    var locations = [];
+    for(var i in events) {
+      var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
+      var li = $($('#content .main .inner .events-seed li:last-child').clone().wrap('<ul>').parent().html());
+      li.find(".name").attr("href", events[i].id);
+      li.find(".index").html(parseInt(i) + 1);
+      li.find(".mod").html(start.toString("MM/dd"));
+      li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
+      li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
+      li.find(".one .name").html(events[i].title);
+      li.find(".one .venue").html(events[i].venue.name);
+      li.find(".one .venue").attr("href",events[i].venue_id);
+      li.find(".one .description").html(events[i].description);
+      li.prependTo('#content .main .inner .events-seed');
+
+      locations.push({lat: events[i].venue.latitude, long: events[i].venue.longitude});
+    }
+
+    placeMarkers({points: locations});
+
+    $('#content .main .inner .events').empty();
+    $('#content .main .inner .header .count').html(events.length + " event" + ((events.length == 1) ? "" : "s"));
+    $('#content .main .inner .events-seed li:not(:last-child)').each(function() {
+      $(this).prependTo('#content .main .inner .events');
+    });
+  });
+}
+
+function toggleSelection() {
+  var thisSelected = ($(this).hasClass('selected'));
+  if(thisSelected && $(this).siblings('span.selected').length == $(this).siblings('span').length) {
+    $(this).siblings('span').removeClass('selected');
+  } else if (thisSelected && $(this).siblings('span.selected').length == 0){
+    $(this).siblings('span').addClass('selected');
+  } else {
+    $(this).toggleClass('selected');
+  }
+}
+
+
+
+function lockMap() {
+  if($("#body").scrollTop() >= mapOffset) {
+    $('#map').css({ position: 'fixed', top: 0, left: 0, float: 'none' });
+  } else {
+    $('#map').css({ position: 'relative', float: 'left' });
+  }
+}
 
 function loadModal(event) {
   var thing = {type:$(this).attr("linkto"), id: $(this).attr("href")};
@@ -230,7 +296,6 @@ function modal(thing) {
   
   if(thing.type === "event") {
     $.getJSON('/events/show/' + thing.id + '.json', function(event) {
-      console.log(event);
 
       start = new Date(event.occurrences[0].start);
       $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
@@ -248,7 +313,6 @@ function modal(thing) {
     });
   } else {
     $.getJSON('/venues/show/' + thing.id + '.json', function(venue) {
-      console.log(venue);
       
       $('.mode.venue h1').html(venue.name);
       $('.mode.venue .address.one').html(venue.address);
