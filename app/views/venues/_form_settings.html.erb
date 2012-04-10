@@ -38,6 +38,9 @@
   });
 
 </script>
+
+<% @parentTags = Tag.all(:conditions => {:parent_tag_id => nil}) %>
+
 <%= form_for @venue, :url => @venue.id ? "/venues/update/" + @venue.id.to_s : "/venues/create" do |f| %>
   <% if @venue.errors.any? %>
     <div id="error_explanation">
@@ -79,6 +82,26 @@
       <%= f.label :zip %>
       <%= f.text_field :zip, :class => 'location' %>
     </div>
+    <div class="tags field">
+    <label>Tags</label>
+    <div class="input-tags">
+
+    <% @parentTags.each do |tag| %>
+      <div class="parent tag">
+        <%= check_box_tag "venue[tag_ids][]", tag.id, @venue.tags.include?(tag), :id => "venue_tag_ids_" + tag.id.to_s %>
+        <%= label_tag "venue[tag_ids][]", tag.name, :for => "venue_tag_ids_" + tag.id.to_s %>
+      </div>
+      <div class="children">
+      <% tag.childTags.each do |childTag| %>
+        <div class="child tag">
+          <%= check_box_tag "venue[tag_ids][]", childTag.id, @venue.tags.include?(childTag), :id => "venue_tag_ids_" + childTag.id.to_s %>
+          <%= label_tag "venue[tag_ids][]", childTag.name, :for => "venue_tag_ids_" + childTag.id.to_s %>
+        </div>
+      <% end %>
+      </div>
+    <% end %>
+    </div>
+  </div>
     <%= f.hidden_field :latitude %>
     <%= f.hidden_field :longitude %>
   </div>

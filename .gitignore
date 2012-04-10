@@ -12,7 +12,11 @@
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
+/log/searchd.development.pid*
 /tmp
 
 *~
 
+/db/sphinx/
+
+/.sublime-project*

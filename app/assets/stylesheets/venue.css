@@ -73,6 +73,7 @@ input.price {
   margin-left: 130px;
   overflow: hidden;
   padding: 10px;
+  clear:both;
 }
 
 .main.event .recurrence {
@@ -102,4 +103,50 @@ select.interval {
 .recur-parameter {
   display:inline-block;
   margin-bottom:10px;
+}
+
+.tags.field label {
+  float:left;
+}
+
+.input-tags {
+  position: relative;
+  top: 2px;
+  float: left;
+  -moz-column-width: 150px;
+  -moz-column-gap: 20px;
+  -webkit-column-width: 150px;
+  -webkit-column-gap: 20px;
+  column-width: 150px;
+  column-gap: 20px;
+  height: 210px;
+  margin-bottom: 20px;
+}
+
+.main .field .input-tags label {
+    width: auto;
+
+    vertical-align: auto;
+    display: inline;
+    text-align: left;
+    float: none;
+}
+
+.tag {
+
+}
+
+.tag.parent {
+
+}
+
+.children {
+    font-size: small;
+
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.tag.child {
+
 }

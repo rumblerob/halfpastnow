@@ -31,6 +31,7 @@
 
 <% @ordinal = ["th","st","nd","rd","th","th","th","th","th","th"] %>
 <% @week = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] %>
+<% @parentTags = Tag.all(:conditions => {:parent_tag_id => nil}) %>
 
 <%= form_for @venue, :url => "/venues/update/" + @venue.id.to_s do |f| %>
   <% if @venue.errors.any? %>
@@ -45,6 +46,8 @@
     </div>
   <% end %>
   <% @i = 0; @venue.events.sort_by{ |event| event.id || 0 }.each do |event| %>
+    <% @iStrName = "venue[events_attributes][" + @i.to_s + "][tag_ids][]" %>
+    <% @iStrId = "venue_events_attributes_" + @i.to_s + "_tag_ids_" %>
     <%= f.fields_for :events, event do |e| %>
       <div class="main event">
 	<%= event.id.nil? ? raw("<h4>New Event</h4>") : "" %>
@@ -59,6 +62,25 @@
 	<div class="field">
 	  <%= e.label :price %>
 	  <%= e.text_field :price, :class => "price" %>
+	</div>
+	<div class="tags field">
+		<label>Tags</label>
+		<div class="input-tags">
+		<% @parentTags.each do |tag| %>
+			<div class="parent tag">
+			<%= check_box_tag @iStrName, tag.id, event.tags.include?(tag), :id => (@iStrId + tag.id.to_s) %>
+			<%= label_tag @iStrName, tag.name, :for => (@iStrId + tag.id.to_s) %>
+		</div>
+			<div class="children">
+			<% tag.childTags.each do |childTag| %>
+				<div class="child tag">
+				<%= check_box_tag @iStrName, childTag.id, event.tags.include?(childTag), :id => (@iStrId + childTag.id.to_s) %>
+				<%= label_tag @iStrName, childTag.name, :for => (@iStrId + childTag.id.to_s) %>
+				</div>
+			<% end %>
+			</div>
+	    <% end %>
+    </div>
 	</div>
 	<div class="occurrence recurrence">
 		<div class="toggle-recurring">
@@ -130,11 +152,6 @@
 	    <% end %>
 	  <% end %>
 	<% end %>
-	<% if false %><div class="field">
-		      <%= r.label :day_of_week %>
-		      <%= r.select :day_of_week, Date::DAYNAMES.zip((0..6).to_a) %>
-		    </div><% end %>
-	
 	<% if !event.id.nil? %>
 	  <div class="remove">
 	    <%= e.check_box :_destroy %>

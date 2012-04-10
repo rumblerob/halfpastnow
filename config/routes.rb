@@ -1,5 +1,7 @@
 Myapp::Application.routes.draw do
   
+  get "tag/index"
+
   # resources :events
   # resources :venues
 
@@ -59,6 +61,7 @@ Myapp::Application.routes.draw do
   # TODO: overcome the stupidity that is rails 3 routing and clean this up.
   match 'venues' => 'venues#index'
   match 'events' => 'events#index'
+  match 'tags' => 'tags#index'
 
   match ':controller(/:action(/:id(.:format)))'
 end
