@@ -36,7 +36,8 @@ class EventsController < ApplicationController
     @long = -97.75
     @zoom = 11
 
-    @events = Event.search params[:search]
+    # @events = Event.search params[:search]
+    @events = Event.all
 
     if params[:location] && params[:location] != ""
       json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
@@ -135,7 +136,8 @@ class EventsController < ApplicationController
     params[:amount] = params[:amount] || 10
     params[:offset] = params[:offset] || 0
 
-    @events = Event.search params[:search]
+    # @events = Event.search params[:search]
+    @events = Event.all
 
     # find occurrences that start between params[:start] and params[:end] and are on params[:day] day of the week 
     if(params[:start] || params[:end] || params[:day])
