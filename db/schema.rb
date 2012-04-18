@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120410170808) do
+ActiveRecord::Schema.define(:version => 20120417192658) do
 
   create_table "events", :force => true do |t|
     t.string   "title"
@@ -63,7 +63,10 @@ ActiveRecord::Schema.define(:version => 20120410170808) do
     t.datetime "updated_at"
     t.boolean  "deleted"
     t.boolean  "submitted"
+    t.integer  "raw_venue_id"
   end
+
+  add_index "raw_events", ["raw_venue_id"], :name => "index_raw_events_on_raw_venue_id"
 
   create_table "raw_venues", :force => true do |t|
     t.string   "name"
@@ -81,8 +84,14 @@ ActiveRecord::Schema.define(:version => 20120410170808) do
     t.text     "neighborhoods"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "name2"
+    t.string   "raw_id"
+    t.string   "from"
+    t.integer  "venue_id"
+    t.string   "url"
+    t.text     "description"
   end
+
+  add_index "raw_venues", ["venue_id"], :name => "index_raw_venues_on_venue_id"
 
   create_table "recurrences", :force => true do |t|
     t.integer  "interval"
@@ -137,6 +146,7 @@ ActiveRecord::Schema.define(:version => 20120410170808) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "phonenumber"
+    t.string   "url"
   end
 
 end

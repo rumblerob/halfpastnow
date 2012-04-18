@@ -1,6 +1,7 @@
 require 'net/http'
 require 'rexml/document'
 require 'pp'
+require 'htmlentities'
 include REXML
 
 desc "discard old occurrences and create new ones from recurrences"
@@ -24,69 +25,126 @@ task :update_occurrences => :environment do
 		end
 	end
 end
+namespace :api do
 
-desc "generate venues from raw_venues"
-task :raw_venues_to_venues => :environment do
-	raw_venues = RawVenue.all
-	raw_venues.each do |raw_venue| 
-		Venue.create({
-			:name => raw_venue.name,
-			:address => raw_venue.address,
-			:address2 => raw_venue.address2,
-			:city => raw_venue.city,
-			:state => raw_venue.state_code,
-			:zip => raw_venue.zip,
-			:latitude => raw_venue.latitude,
-			:longitude => raw_venue.longitude,
-			:phonenumber => raw_venue.phone
-		})
-	end
-end
- 
-desc "pull events from assorted apis"
-task :pull_api_events, [:until_time]  => :environment do |t, args|
-	d_until = args[:until_time] ? DateTime.parse(args[:until_time]) : nil
-
-	page = 0
-	begin
-		@breakout = false
-		apiURL = URI("http://events.austin360.com/search?rss=1&sort=1&srss=100&city=Austin&ssi=" + (page*100).to_s)
-		apiXML = Net::HTTP.get(apiURL)
-		doc = Document.new(apiXML)
-		stream_count = XPath.first( doc, "//stream_count").text
-		if stream_count == 0
-			break
+	desc "generate venues from raw_venues"
+	task :convert_venues => :environment do
+		raw_venues = RawVenue.all
+		raw_venues.each do |raw_venue| 
+			venue = Venue.create({
+				:name => raw_venue.name,
+				:address => raw_venue.address,
+				:address2 => raw_venue.address2,
+				:city => raw_venue.city,
+				:state => raw_venue.state_code,
+				:zip => raw_venue.zip,
+				:latitude => raw_venue.latitude,
+				:longitude => raw_venue.longitude,
+				:phonenumber => raw_venue.phone,
+				:url => raw_venue.url,
+				:description => raw_venue.description
+			})
+			raw_venue.venue_id = venue.id
+			raw_venue.save
 		end
-		XPath.each( doc, "//item") do |item|
-			from = item.elements["title"].text.index("Event:") + 7
-			to = item.elements["title"].text.rindex(" at ") - 1
-			d_start = item.elements["xCal:dtstart"].text ? DateTime.parse(item.elements["xCal:dtstart"].text) : nil
-			d_end = item.elements["xCal:dtend"].text ? DateTime.parse(item.elements["xCal:dtend"].text) : nil
+	end
 
-			if(d_until && d_start && d_start > d_until)
-				@breakout = true
+
+	desc "pull venues from apis"
+	task :get_venues => :environment do
+
+		html_ent = HTMLEntities.new
+		offset = 0
+		begin
+			apiURL = URI("http://events.austin360.com/search?rss=1&sort=1&st=venue&srss=100&city=Austin&ssi=" + offset.to_s)
+			apiXML = Net::HTTP.get(apiURL)
+			doc = Document.new(apiXML)
+			stream_count = XPath.first( doc, "//stream_count").text
+			
+			offset += stream_count.to_i 
+			if stream_count == "0"
 				break
-			elsif RawEvent.where(:raw_id => item.elements["id"].text).count > 0
-				next
 			end
 
-			raw_event = RawEvent.create({
-				:title => item.elements["title"].text[from..to],
-			    :description => item.elements["description"].text,
-			    :start => d_start,
-			    :end => d_end,
-			    :latitude => item.elements["geo:lat"].text,
-			    :longitude => item.elements["geo:long"].text,
-			    :venue_name => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-venue-name"].text,
-			    :venue_address => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-street"].text,
-			    :venue_city => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-city"].text,
-			    :venue_state => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-region"].text,
-			    :venue_zip => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-postalcode"].text,
-			    :url => item.elements["link"].text,
-			    :raw_id => item.elements["id"].text,
-			    :from => "austin360"
-			})
-		end
-		page += 1
-	end until @breakout
+			XPath.each( doc, "//item") do |item|
+				if RawVenue.where(:raw_id => item.elements["xCal:x-calconnect-venue"].elements["xCal:x-calconnect-venue-id"].text).count > 0
+					next
+				end
+
+				raw_venue = RawVenue.create({
+				    :name => html_ent.decode(item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-venue-name"].text),
+				   	:description => html_ent.decode(item.elements["description"].text), 
+				   	:url => html_ent.decode(item.elements["link"].text),
+				   	:address => html_ent.decode(item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-street"].text),
+				   	:city => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-city"].text,
+				    :state_code => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-region"].text,
+				    :zip => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-postalcode"].text,
+				    :latitude => item.elements["geo:lat"].text,
+				    :longitude => item.elements["geo:long"].text,
+				    :phone => html_ent.decode(item.elements["xCal:x-calconnect-venue"].elements["xCal:x-calconnect-tel"] ? item.elements["xCal:x-calconnect-venue"].elements["xCal:x-calconnect-tel"].text : nil),
+				    :raw_id => item.elements["xCal:x-calconnect-venue"].elements["xCal:x-calconnect-venue-id"].text,
+				    :from => "austin360"
+				})
+				puts raw_venue.name
+			end
+		end until false
+	end
+	 
+	desc "pull events from apis"
+	task :get_events, [:until_time]  => :environment do |t, args|
+		d_until = args[:until_time] ? DateTime.parse(args[:until_time]) : DateTime.now.advance(:weeks => 1)
+
+		puts "getting events before " + d_until.to_s
+
+		html_ent = HTMLEntities.new
+		offset = 0
+		begin
+			@breakout = false
+			apiURL = URI("http://events.austin360.com/search?rss=1&sort=1&srss=100&city=Austin&ssi=" + offset.to_s)
+			apiXML = Net::HTTP.get(apiURL)
+			doc = Document.new(apiXML)
+			stream_count = XPath.first( doc, "//stream_count").text
+			
+			offset += stream_count.to_i 
+			if stream_count == "0"
+				break
+			end
+
+			XPath.each( doc, "//item") do |item|
+				from = item.elements["title"].text.index("Event:") + 7
+				to = item.elements["title"].text.rindex(" at ") - 1
+				d_start = item.elements["xCal:dtstart"].text ? DateTime.parse(item.elements["xCal:dtstart"].text) : nil
+				d_end = item.elements["xCal:dtend"].text ? DateTime.parse(item.elements["xCal:dtend"].text) : nil
+
+				puts "event from: " + d_start.to_s
+
+				if(d_until && d_start && d_start > d_until)
+					@breakout = true
+					break
+				elsif RawEvent.where(:raw_id => item.elements["id"].text).count > 0
+					next
+				end
+
+				raw_venue = RawVenue.where(:raw_id => item.elements["xCal:x-calconnect-venue"].elements["xCal:x-calconnect-venue-id"].text).first
+
+				raw_event = RawEvent.create({
+					:title => html_ent.decode(item.elements["title"].text[from..to]),
+				    :description => html_ent.decode(item.elements["description"].text),
+				    :start => d_start,
+				    :end => d_end,
+				    :latitude => item.elements["geo:lat"].text,
+				    :longitude => item.elements["geo:long"].text,
+				    :venue_name => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-venue-name"].text,
+				    :venue_address => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-street"].text,
+				    :venue_city => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-city"].text,
+				    :venue_state => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-region"].text,
+				    :venue_zip => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-postalcode"].text,
+				    :url => item.elements["link"].text,
+				    :raw_id => item.elements["id"].text,
+				    :from => "austin360",
+				    :raw_venue_id => (raw_venue ? raw_venue.id : nil)
+				})
+			end
+		end until @breakout
+	end
 end

@@ -1,8 +1,21 @@
 $(function() {
 
+  $('.more-tags').click(function() {
+    if($('.filter.tags').hasClass('expanded')) {
+      $('.more-tags').html("&#x25BE; more");
+    } else {
+      $('.more-tags').html("&#x25B4; less");
+    }
+    $('.filter.tags').toggleClass('expanded')
+  });
+
   $('#content .sidebar .inner .filter.date span').click(function () {
     $(this).siblings('span').removeClass('selected');
     $(this).addClass('selected');
+
+    $(this).parent().parent().find('.custom-select').removeClass('selected');
+    $(this).parent().parent().find('.custom-select:nth-child(' + ($(this).index() + 1) +  ')').addClass('selected');
+
     if($(this).hasClass('custom-radio'))
       $(this).siblings('.custom-select').show();
     else
@@ -83,6 +96,7 @@ var filter = {
   end: null,
   day: [0,1,2,3,4,5,6],
   price: [0,1,2,3,4],
+  tags: [],
   latMin: null,
   latMax: null,
   longMin: null,
@@ -93,6 +107,8 @@ var filter = {
 
 var boundsChangedFlag = false;
 function boundsChanged() {
+  // console.log(map.getBounds().getSouthWest());
+  // console.log(map.getBounds().getNorthEast());
   filter.latMin = map.getBounds().getSouthWest().lat();
   filter.latMax = map.getBounds().getNorthEast().lat();
   filter.longMin = map.getBounds().getSouthWest().lng();
@@ -174,6 +190,11 @@ function filterChange() {
 }
 
 function updateFilter() {
+  filter.tags = [];
+  var selectedTags = $('#tag-input').tokenInput("get");
+  for(var i in selectedTags) {
+    filter.tags.push(selectedTags[i].id);
+  }
   filter.dateType = $('#content .sidebar .inner .filter.date span.selected').first().index() - 1;
   filter.start = $('#content .sidebar .inner .filter.date .start.date').datepicker("getDate");
   filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
@@ -204,14 +225,19 @@ function pullEvents() {
     query += "&long_min=" + filter.longMin;
   if(filter.longMax)
     query += "&long_max=" + filter.longMax;
-  if(filter.day.length > 0)
+  if(filter.day.length > 0 && filter.day.length < 7)
     query += "&day=" + filter.day.reduce(function(a,b) { return a + "," + b; },"").substring(1);
-  if(filter.price.length > 0)
+  if(filter.price.length > 0 && filter.price.length < 5)
     query += "&price=" + filter.price.reduce(function(a,b) { return a + "," + b; },"").substring(1);
+  if(filter.tags.length > 0)
+    query += "&tags=" + filter.tags.reduce(function(a,b) { return a + "," + b; },"").substring(1);
   if(filter.offset)
     query += "&offset=" + filter.offset;
 
+
   $.getJSON("/events/find?" + query, function (events) {
+    console.log("http://localhost:3000/events/find?" + query);
+    console.log(events);
     var locations = [];
     for(var i in events) {
       var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
@@ -308,6 +334,7 @@ function modal(thing) {
       $('.mode.event .address.two').html(event.venue.city + ", " + event.venue.state + " " + event.venue.zip);
       $('.mode.event .price span').html(event.price);
       $('.mode.event .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + event.venue.latitude  +  "," + event.venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
+      $('.mode.event .map-link').attr("href","http://maps.google.com/maps?q=" + event.venue.latitude  + "," + event.venue.longitude);
       $('.mode').hide();
       $('.mode.event').show();
     });
@@ -318,6 +345,8 @@ function modal(thing) {
       $('.mode.venue .address.one').html(venue.address);
       $('.mode.venue .address.two').html(venue.city + ", " + venue.state + " " + venue.zip);
       $('.mode.venue .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + venue.latitude  +  "," + venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
+      $('.mode.venue .map-link').attr("href","http://maps.google.com/maps?q=" + venue.latitude  + "," + venue.longitude);
+
       $('.mode').hide();
       $('.mode.venue').show();
     });

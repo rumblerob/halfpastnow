@@ -1,15 +1,16 @@
+<div id="form_events">
 <script type="text/javascript">
-	$(function() {
-		$(".toggle-recurring input").attr('checked', false);
+	 $(function() {
+	 	$("#form_events .toggle-recurring input").attr('checked', false);
 
-		$(".toggle-recurring input").change(function() {
+		$("#form_events .toggle-recurring input").change(function() {
 			$(this).parent().siblings(".new-occurrence").toggle();
 			$(this).parent().siblings(".new-recurrence").toggle();
 		});
 
-		$(".new-occurrence .field select[name*=4i], .new-occurrence .field select[name*=5i]").val("");
+		$("#form_events .new-occurrence .field select[name*=4i], #form_events .new-occurrence .field select[name*=5i]").val("");
 
-		$(".new-recurrence select[name*=interval]").change(function() {
+		$("#form_events .new-recurrence select[name*=interval]").change(function() {
 			$(this).siblings(".recur-parameter").hide();
 			switch($(this).val())
 			{
@@ -25,8 +26,8 @@
 			}
 		});
 
-		$(".new-recurrence select[name*=interval]").change();
-	});
+		$("#form_events .new-recurrence select[name*=interval]").change();
+	 });
 </script>
 
 <% @ordinal = ["th","st","nd","rd","th","th","th","th","th","th"] %>
@@ -166,3 +167,4 @@
     <%= f.submit %>
   </div>
 <% end %>
+</div>

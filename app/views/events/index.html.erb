@@ -1,15 +1,21 @@
+<%# TODO: put this stuff in the controller eventually %>
+<% @now = DateTime.now.change(:hour => 0) %>
+<% @day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
+<% @tags = Tag.all %>
+
 <script type="text/javascript">
 	var geocoder;
 	var map;
 	var markers = [];
+	var tags = [];
 
 	function initialize() {
 
-		$("#map").height($(window).height() - $("#map").offset().top - 2 * parseInt($("#map").css("border-top-width")));
+		//$("#map").height($(window).height() - $("#map").offset().top - 2 * parseInt($("#map").css("border-top-width")));
 		geocoder = new google.maps.Geocoder();
-		var latlng = new google.maps.LatLng(30.25, -97.75);
+		var latlng = new google.maps.LatLng(<%= @lat %>, <%= @long %>);
 		var myOptions = {
-			zoom: 12,
+			zoom: <%= @zoom %>,
 			center: latlng,
 			mapTypeId: google.maps.MapTypeId.ROADMAP,
 			disableDefaultUI: true,
@@ -42,13 +48,20 @@
 		}
 
 		filter.search = "<%= params[:search] %>";
+
+		<% @tags.each do |tag| %>
+		tags.push({id: <%= tag.id %>, name: "<%= tag.name.downcase %>"});
+		<% end %>
+
+		$("#tag-input").tokenInput(tags, {theme: "facebook", onAdd: filterChange, onDelete: filterChange });
+
+		$(".tag-library div").click(function() {
+			$("#tag-input").tokenInput("add", {id: parseInt($(this).attr("tagID")), name: $(this).html()});
+		});
 	});
 
 </script>
 
-<%# TODO: put this stuff in the controller eventually %>
-<% @now = DateTime.now.change(:hour => 0) %>
-<% @day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'] %>
 <%
 	def eventListElement (event, index)
 
@@ -79,7 +92,6 @@
 			<div class="latitude"><%= event ? event.venue.latitude : "" %></div>
 			<div class="longitude"><%= event ? event.venue.longitude : "" %></div>
 		</div>
-
 	</li>
 <%
 	end
@@ -98,11 +110,13 @@
 		<div class="two">
 			<div class="inner">
 				<div class="search">
-					<%= form_tag("/events", :method => "get") do %>
+					<%= form_tag("/events", :method => "get", :id => "search-form") do %>
 					<%= label_tag(:q, "find") %>
 					<%= text_field_tag :search, params[:search], :placeholder => "things to do", :class => "terms" %>
 					around
-					<input type="text" class="location" placeholder="a point in space"/>
+					<%= text_field_tag :location, params[:location], :placeholder => "a point in space", :class => "location" %>
+					<%= hidden_field_tag :latitude, params[:latitude] %>
+					<%= hidden_field_tag :longitude, params[:longitude] %>
 					<%= image_submit_tag("search2.png") %>
 					<% end %>
 				</div>
@@ -114,37 +128,36 @@
 			<div class="inner">
 				<div class="filter tags">
 					<label>tags</label>
-					<input type="text" class="tags" />
+					<input type="text" class="tags" id="tag-input" />
 					<div class="tag-library">
-						<div>music</div>
-						<div>punk</div>
-						<div>country</div>
-						<div>nightlife</div>
-						<div>weird</div>
-						<div>dance</div>
-						<div>cinema</div>
-						<div>festivals</div>
-						<div>comedy</div>
-						<div>outdoors</div>
-						<div>more...</div>
+						<% @tags.each do |tag| %>
+						<div tagID="<%= tag.id %>"><%= tag.name.downcase %></div>
+						<% end %>
+					</div>
+					<div class="more-tags">
+						&#x25BE; more
 					</div>
 				</div>
-				<div class="filter date">
+				<div class="col-2">
+					<div class="filter date">
 						<!--<h5>date + time</h5>-->
 						<div class="filters">
 							<span class="selected">today</span><span>tomorrow</span><span class="custom-radio">custom</span>
 						</div>
-						<div class="custom-select"><input type="text" class="start date" placeholder=" from now"/><input type="text" class="end date" placeholder="to forever"/></div>
+						<div>
+							<div class="custom-select selected"></div>
+							<div class="custom-select"></div>
+							<div class="custom-select"><input type="text" class="start date" placeholder=" from now"/><input type="text" class="end date" placeholder="to forever"/></div>
+						</div>
 					</div>
-				<div class="col-2">
 					<div class="filter day">
 						<!--<h5>day of the week</h5>-->
 						<span class="selected">sun</span><span class="selected">mon</span><span class="selected">tue</span><span class="selected">wed</span><span class="selected">thu</span><span class="selected">fri</span><span class="selected">sat</span>
 					</div>
-					<div class="filter price">
-						<!--<h5>price</h5>-->
-						<span class="selected">free</span><span class="selected">$</span><span class="selected">$$</span><span class="selected">$$$</span><span class="selected">$$$$</span>
-					</div>
+				</div>
+				<div class="filter price">
+					<!--<h5>price</h5>-->
+					<span class="selected">free</span><span class="selected">$</span><span class="selected">$$</span><span class="selected">$$$</span><span class="selected">$$$$</span>
 				</div>
 			</div>
 		</div>
@@ -173,7 +186,7 @@
 			<div class="h1under right"></div>
 			<h1></h1>
 			<div class="inner">
-				<img class="map" src="" style="float: left;">
+				<a class="map-link" href="" style="float: left;"><img class="map" /></a>
 				<div class="details">	
 					<div class="time one"></div>
 					<div class="time two"></div>
@@ -207,7 +220,7 @@
 			<div class="h1under right"></div>
 			<h1></h1>
 			<div class="inner">
-				<img class="map" src="" style="float: left;">
+				<a class="map-link" href="" style="float: left;"><img class="map" /></a>
 				<div class="details">
 					<div class="address one">2100 Barton Springs Road</div>
 					<div class="address two">Austin, TX 78704</div>

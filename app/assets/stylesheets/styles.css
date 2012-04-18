@@ -1,7 +1,6 @@
 /* Global styles */
 
 
-
 @font-face
 {
   font-family: UbuntuMonoBold;
@@ -177,8 +176,8 @@ H6
 #content .sidebar
 {
   width: 100%;
-  height: 100px;
-  overflow:hidden;
+  height: 141px;
+  position: relative;
 }
 #content .sidebar .inner
 {
@@ -209,7 +208,8 @@ H6
   font-size: 14px;
   float:left;
 }
-#content .sidebar .inner .filter SPAN, #content .sidebar .inner .filter .tag-library
+
+.sidebar .filter SPAN
 {
   color: #13133A;
   background-color: rgba(19, 19, 58, .1);
@@ -239,10 +239,18 @@ H6
   color: #13133A;
 }
 
+#content .sidebar .inner .filter.day
+{
+  clear:both;
+  padding-top: 10px;
+}
+
 #content .sidebar .inner .filter.date 
 {
-  width:290px;
+  width: 290px;
 }
+
+
 #content .sidebar .inner .filter.date .filters
 {
   float:left;
@@ -264,10 +272,16 @@ H6
 {
   background-color: rgba(19, 19, 58, .25);
   color: white;
-  padding: 10px 10px 10px 20px;
+  padding: 10px 10px 10px 19px;
   float:left;
   text-align:right;
   height:60px;
+  display:none;
+  width: 166px;
+}
+#content .sidebar .inner .filter.date .custom-select.selected
+{
+  display:block;
 }
 #content .sidebar .inner .filter.date .custom-select INPUT 
 {
@@ -283,12 +297,20 @@ H6
 #content .sidebar .inner .filter.tags
 {
   margin-right: 10px;
-  position: relative;
-  background-color: rgba(19, 19, 58, .25);
+  position: absolute;
+  background-color: #B9B9C9;
   color: white;
   font-weight: bold;
-  padding: 5px;
+  padding: 0 5px 5px 5px;
+  height: 116px;
+  z-index: 3;
 }
+#content .sidebar .inner .filter.tags.expanded
+{
+  height:216px;
+}
+
+
 #content .sidebar .inner .filter.tags LABEL
 {
   margin: 0 3px;
@@ -308,13 +330,17 @@ H6
 }
 #content .sidebar .inner .filter .tag-library
 {
-  margin: 6px 0 0 0;
-  width: 381px;
-  height:40px;
+  margin: 7px 0 3px;
+  width: 432px;
+  height: 60px;
   overflow:hidden;
-  font-variant:small-caps;
   background-color:transparent;
 }
+#content .sidebar .inner .filter.expanded .tag-library
+{
+  height:160px;
+}
+
 #content .sidebar .inner .filter .tag-library DIV
 {
   float:left;
@@ -326,6 +352,8 @@ H6
   margin-right:3px;
   margin-bottom:3px;
   border-radius:2px;
+  font-variant:small-caps;
+  font-size: 14px;
 }
 #content .sidebar .inner .filter .tag-library DIV:after
 {
@@ -335,15 +363,20 @@ H6
   top: 2px;
   left: 2px;
 }
-#content .sidebar .inner .filter .tag-library DIV:last-child
+#content .sidebar .inner .filter .more-tags
 {
-  background-color:#3131A8;
+  font-weight:normal;
+  padding:1px 5px;
+  cursor:pointer;
+  background-color: #5858C9;
   color:white;
-  font-weight:bold;
-}
-#content .sidebar .inner .filter .tag-library DIV:last-child:after
-{
-  content: "";
+  border-radius: 2px 0 0 0;
+  font-variant:small-caps;
+  text-align: center;
+  width: 82px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 #content .sidebar .inner .filter SPAN
 {
@@ -354,6 +387,7 @@ H6
 }
 #content .sidebar .inner .col-2 {
   float:left;
+  margin-left: 451px;
 }
 #content .sidebar .inner .col-2 .filter
 {
@@ -370,8 +404,7 @@ H6
 #content .sidebar .inner .filter.price SPAN
 {
   font-size: 14px;
-  margin-top: 10px;
-  padding: 12px 17px;
+  padding: 6px 12px;
   cursor: pointer;
 }
 
@@ -380,13 +413,8 @@ H6
 
 #content #map {
   width:300px;
-  height:400px;
+  height:500px;
   float:left;
-  /*position:fixed !important;
-  left:0;
-  top:201px;*/
-  
-;
   border: 5px solid rgba(19, 19, 58, .25);
   border-left: 0;
 }

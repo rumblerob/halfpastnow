@@ -64,6 +64,7 @@ GEM
       thinking-sphinx
     hashie (1.2.0)
     hike (1.2.1)
+    htmlentities (4.3.1)
     i18n (0.6.0)
     jquery-rails (1.0.19)
       railties (~> 3.0)
@@ -150,6 +151,7 @@ DEPENDENCIES
   admin_data (>= 1.1.16)
   coffee-rails (~> 3.1.1)
   flying-sphinx (= 0.6.4)
+  htmlentities
   jquery-rails
   pg
   rails (= 3.1.3)

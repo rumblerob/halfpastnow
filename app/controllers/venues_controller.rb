@@ -3,7 +3,11 @@ class VenuesController < ApplicationController
   # GET /venues.json
   def index
     # @venues = Venue.all
-
+    @venues = RawEvent.where(:submitted => nil, :deleted => nil).collect { |raw_event| raw_event.raw_venue ? raw_event.raw_venue.venue : nil }.compact
+    @num_raw_events = Hash.new(0)
+    @venues.each { |venue| @num_raw_events[venue.id] += 1 }
+    @venues.uniq!
+    
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @venues }

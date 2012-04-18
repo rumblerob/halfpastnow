@@ -1,4 +1,6 @@
 require 'pp'
+require 'open-uri'
+require 'json'
 
 class Price
   FREE = 0
@@ -7,11 +9,73 @@ class Price
   THREE = 25
 end
 
+# brittle as hell, because these have to change if we change the map size, and also if we change locales from Austin.
+class ZoomDelta
+  HighLatitude = 0.037808182 / 2
+  HighLongitude = 0.02617836 / 2
+  MediumLatitude = 0.0756264644 / 2
+  MediumLongitude = 0.05235672 / 2
+  LowLatitude = 0.30250564 / 2
+  LowLongitude = 0.20942688 / 2
+
+
+end
+
 class EventsController < ApplicationController
   # GET /events
   # GET /events.json
   def index
+
+    @ZoomDelta = {
+             11 => { :lat => 0.30250564 / 2, :long => 0.20942688 / 2 }, 
+             13 => { :lat => 0.0756264644 / 2, :long => 0.05235672 / 2 }, 
+             14 => {:lat => 0.037808182 / 2, :long => 0.02617836 / 2 }
+            }
+
+    @lat = 30.25
+    @long = -97.75
+    @zoom = 11
+
     @events = Event.search params[:search]
+
+    if params[:location] && params[:location] != ""
+      json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
+      @lat = json_object["results"][0]["geometry"]["location"]["lat"]
+      @long = json_object["results"][0]["geometry"]["location"]["lng"]
+      @zoom = 14
+    end
+
+    @lat_delta = @ZoomDelta[@zoom][:lat]
+    @long_delta = @ZoomDelta[@zoom][:long]
+    @lat_low = @lat - @lat_delta
+    @lat_high = @lat + @lat_delta
+    @long_low = @long - @long_delta
+    @long_high = @long + @long_delta
+
+    # puts "from " + @lat_low.to_s + " to " + @lat_high.to_s
+    # puts "from " + @long_low.to_s + " to " + @long_high.to_s
+
+    # puts "events_size = " + @events.count.to_s
+
+    # @events.each do |event|
+    #   puts @lat_low.to_s + " ? " + event.venue.latitude.to_s + " ? " + @lat_high.to_s
+    #   puts @long_low.to_s + " ? " + event.venue.longitude.to_s + " ? " + @long_high.to_s
+    #   puts ((event.venue.latitude >= @lat_low) && (event.venue.latitude <= @lat_high) && (event.venue.longitude >= @long_low) && (event.venue.longitude <= @long_high))
+    # end
+
+    @events.select! do |event| 
+      ((event.venue.latitude >= @lat_low) && (event.venue.latitude <= @lat_high) && (event.venue.longitude >= @long_low) && (event.venue.longitude <= @long_high))
+    end
+
+    # puts "new events_size = " + @events.count.to_s
+
+    # if location is in params:
+    #   geolocate and find lat/long
+    #   filter on a bounding box with center at location = lat/long and zoom = high
+    # else
+    #   filter on a bounding box with center at location = center of austin and zoom = low
+
+    
 
     respond_to do |format|
       format.html # index.html.erb
@@ -90,11 +154,31 @@ class EventsController < ApplicationController
 
     #filter by location
     if(params[:lat_min] && params[:long_min] && params[:lat_max] && params[:long_max])
-      @events = @events.find_all {|e| ((params[:lat_min].to_f)..(params[:lat_max].to_f)).include?(e.venue.latitude) && ((params[:long_min].to_f)..(params[:long_max].to_f)).include?(e.venue.longitude) }
+      @events.select! {|e| ((params[:lat_min].to_f)..(params[:lat_max].to_f)).include?(e.venue.latitude) && ((params[:long_min].to_f)..(params[:long_max].to_f)).include?(e.venue.longitude) }
+    end
+    
+    # filter by tags
+    if(params[:tags])
+      @tagIDs = params[:tags].split(",").collect { |str| str.to_i }
+      
+      @events.each { |e| puts e.tags.collect { |tag| tag.id} }
+      @events.select! { |e| !((e.tags.collect { |tag| tag.id } & @tagIDs).empty?) }
     end
 
-    # filter by price/[tags]
-    # TODO
+    @priceRanges = [0,0.01,10,25,50]
+
+    #filter by price
+    if(params[:price])
+      @prices = params[:price].split(",").collect { |str| str.to_i }
+      @events.select! do |e|
+        if e.price.nil?
+          false
+        else
+          @prices.reduce(false) { |aggregate, i| aggregate || (@priceRanges[i] <= e.price &&
+                                                             ((i == @priceRanges.length - 1) ? true : @priceRanges[i+1] > e.price)) }
+        end
+      end
+    end
 
     # filter by offset and amount
 
