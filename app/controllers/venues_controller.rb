@@ -1,3 +1,5 @@
+require 'pp'
+
 class VenuesController < ApplicationController
   # GET /venues
   # GET /venues.json
@@ -55,6 +57,8 @@ class VenuesController < ApplicationController
       event.occurrences.build(:start => Date.today.to_datetime, :end => Date.today.to_datetime)
       event.recurrences.build
     end
+
+    @parentTags = Tag.all(:conditions => {:parent_tag_id => nil})
   end
 
   # POST /venues
@@ -81,13 +85,13 @@ class VenuesController < ApplicationController
     if(params[:venue][:events_attributes])
       params[:venue][:events_attributes].each do |params_event|
         if params_event[1]["recurring"]
-          puts "recurring"
+          # puts "recurring"
           params_event[1]["occurrences_attributes"].shift
           if params_event[1]["occurrences_attributes"].length == 0
             params_event[1].delete("occurrences_attributes")
           end
         else
-          puts "not recurring"
+          # puts "not recurring"
           params_event[1]["recurrences_attributes"].shift
           if params_event[1]["recurrences_attributes"].length == 0
             params_event[1].delete("recurrences_attributes")
@@ -95,25 +99,25 @@ class VenuesController < ApplicationController
         end
         if params_event[1]["occurrences_attributes"]
           params_event[1]["occurrences_attributes"].each_with_index do |params_occurrence, index|
-            puts "start(4i): " + params_occurrence[1]["start(4i)"]
+            # puts "start(4i): " + params_occurrence[1]["start(4i)"]
             if params_occurrence[1]["start(4i)"] == "" || params_occurrence[1]["start(5i)"] == ""
-              puts "deleting occurrence:"
-              puts index
-              puts params_event[1]["occurrences_attributes"][index.to_s]
+              # puts "deleting occurrence:"
+              # puts index
+              # puts params_event[1]["occurrences_attributes"][index.to_s]
               params_event[1]["occurrences_attributes"].delete(index.to_s)
             else
-              params_occurrence[1]["day_of_week"] = Date.parse(params_occurrence[1]["start(1i)"] + "-" + params_occurrence[1]["start(2i)"] + "-" + params_occurrence[1]["start(3i)"]).wday
+              # params_occurrence[1]["day_of_week"] = Date.parse(params_occurrence[1]["start(1i)"] + "-" + params_occurrence[1]["start(2i)"] + "-" + params_occurrence[1]["start(3i)"]).wday
             end
           end
         end
         if params_event[1]["recurrences_attributes"]
           params_event[1]["recurrences_attributes"].each do |params_recurrence|
-            puts "start(4i): " + params_recurrence[1]["start(4i)"]
+            # puts "start(4i): " + params_recurrence[1]["start(4i)"]
             if params_recurrence[1]["start(4i)"] == "" || params_recurrence[1]["start(5i)"] == ""  
-              puts "deleting recurrence"
+              # puts "deleting recurrence"
               params_recurrence.shift(2)
             else
-              params_recurrence[1]["day_of_week"] = Date.parse(params_recurrence[1]["start(1i)"] + "-" + params_recurrence[1]["start(2i)"] + "-" + params_recurrence[1]["start(3i)"]).wday
+              # params_recurrence[1]["day_of_week"] = Date.parse(params_recurrence[1]["start(1i)"] + "-" + params_recurrence[1]["start(2i)"] + "-" + params_recurrence[1]["start(3i)"]).wday
             end
           end
         end
@@ -132,6 +136,23 @@ class VenuesController < ApplicationController
         format.json { render json: @venue.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  # GET /venues/new
+  # GET /venues/new.json
+  def fromRaw
+    @venue = Venue.find(params[:id])
+    puts params
+    @event = @venue.events.build()
+    @event.update_attributes(params[:event])
+    # pp @event
+    @raw_event = RawEvent.find(params[:raw_event_id])
+    @raw_event.submitted = true
+    #pp @raw_event
+    @raw_event.save
+    @event.save
+
+    redirect_to :action => :edit, :id => @venue.id
   end
 
   # DELETE /venues/1

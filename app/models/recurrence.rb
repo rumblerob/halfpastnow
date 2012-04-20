@@ -97,5 +97,4 @@ class Recurrence < ActiveRecord::Base
 
     return counter_occurrences > 0
   end
-
 end

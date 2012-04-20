@@ -6,7 +6,7 @@ $(function() {
     } else {
       $('.more-tags').html("&#x25B4; less");
     }
-    $('.filter.tags').toggleClass('expanded')
+    $('.filter.tags').toggleClass('expanded');
   });
 
   $('#content .sidebar .inner .filter.date span').click(function () {
@@ -79,7 +79,7 @@ $(function() {
 
 var mapOffset;
 
-var day_of_week = day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+var day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
 window.addEventListener("popstate", function(e) {
   var query = e.target.location.search;
@@ -251,6 +251,7 @@ function pullEvents() {
       li.find(".one .venue").html(events[i].venue.name);
       li.find(".one .venue").attr("href",events[i].venue_id);
       li.find(".one .description").html(events[i].description);
+      console.log(events[i].occurrences[0]);
       li.prependTo('#content .main .inner .events-seed');
 
       locations.push({lat: events[i].venue.latitude, long: events[i].venue.longitude});

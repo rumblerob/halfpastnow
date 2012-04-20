@@ -95,7 +95,7 @@ class EventsController < ApplicationController
 
       puts params
 
-      params[:event]["occurrences_attributes"]["0"]["day_of_week"] = Date.parse(params[:event]["occurrences_attributes"]["0"]["start(1i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(2i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(3i)"]).wday
+      # params[:event]["occurrences_attributes"]["0"]["day_of_week"] = Date.parse(params[:event]["occurrences_attributes"]["0"]["start(1i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(2i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(3i)"]).wday
       @event = Event.new(params[:event])
       @event.save
     end
