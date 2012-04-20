@@ -39,10 +39,8 @@ $(function() {
     separator: ' @ '
   });
 
-  $('.mode .overlay').click(function() {   
-    history.pushState({}, "main mode", "/");
-    demodal();
-  });
+  $('.mode .overlay').click(closeMode);
+  $('.mode .close-btn').click(closeMode);
 
   $('.mode .overlay .window').click(function(event) {
     event.stopPropagation();
@@ -118,7 +116,10 @@ function boundsChanged() {
   }
   boundsChangedFlag = true;
 }
-
+function closeMode(){
+  history.pushState({}, "main mode", "/");
+  demodal();
+}
 function placeMarkers(params) {
   if (typeof params.clear === 'undefined' || params.clear === true)
     clearMarkers();
@@ -326,13 +327,13 @@ function modal(thing) {
       start = new Date(event.occurrences[0].start);
       $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
       $('.mode.event .time.two').html(start.toString("h:mmtt"));
-      
+      console.log(event.price);
       $('.mode.event h1').html(event.title);
       $('.mode.event .venue a').html(event.venue.name);
       $('.mode.event .venue a').attr("href", event.venue.id);
       $('.mode.event .address.one').html(event.venue.address);
       $('.mode.event .address.two').html(event.venue.city + ", " + event.venue.state + " " + event.venue.zip);
-      $('.mode.event .price span').html(event.price);
+      $('.mode.event .price').html(event.price ? "<strong>Price: </strong> <span>$" + parseFloat(event.price).toFixed(2) + "</span>" : "");
       $('.mode.event .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + event.venue.latitude  +  "," + event.venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.event .map-link').attr("href","http://maps.google.com/maps?q=" + event.venue.latitude  + "," + event.venue.longitude);
       $('.mode').hide();
@@ -346,7 +347,21 @@ function modal(thing) {
       $('.mode.venue .address.two').html(venue.city + ", " + venue.state + " " + venue.zip);
       $('.mode.venue .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + venue.latitude  +  "," + venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.venue .map-link').attr("href","http://maps.google.com/maps?q=" + venue.latitude  + "," + venue.longitude);
-
+      if (venue.phonenumber=="") { 
+        $('.mode.venue .phone span').html("Not Available");
+      } 
+      else {
+        $('.mode.venue .phone span').html(venue.phonenumber);
+      }
+      //$('.mode.venue .url a').html(venue.name);
+      //$('.mode.venue .url a').attr("href", venue.url);
+      if (venue.url=="") { 
+        $('.mode.venue .url a').html("Not Available");
+      } 
+        else {
+          $('.mode.venue .url a').html(venue.name);
+          $('.mode.venue .url a').attr("href", venue.url);
+        }
       $('.mode').hide();
       $('.mode.venue').show();
     });

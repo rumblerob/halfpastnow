@@ -18,10 +18,13 @@ class VenuesController < ApplicationController
   # GET /venues/1.json
   def show
     @venue = Venue.find(params[:id])
-
+    puts "venue_id "
+    puts  params[:id]
+    #@venue.phonenumber = RawVenue.find_by_name(@venue.name).phone
+    #@venue.url = RawVenue.find_by_name(@venue.name).url
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @venue.to_json(:include => { :events => { :include => :occurrences } } ) }
+      format.json { render json: @venue.to_json(:include => { :events => { :include => :occurrences }} ) }
     end
   end
 
@@ -64,9 +67,11 @@ class VenuesController < ApplicationController
 
     respond_to do |format|
       if @venue.save
+        puts "here save"
         format.html { redirect_to action: :index }
         format.json { render json: @venue, status: :created, location: @venue }
       else
+        puts "here not save"
         format.html { render action: "new" }
         format.json { render json: @venue.errors, status: :unprocessable_entity }
       end
