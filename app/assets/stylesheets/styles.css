@@ -597,6 +597,23 @@ html,body {
 .mode {
   display: none;
 }
+.close-btn {
+    background-color: #605F61;
+    border: 8px solid white;
+    border-radius: 20px 20px 20px 20px;
+    cursor: pointer;
+    padding: 1px 5px;
+    position: absolute;
+    right: -16px;
+    top: -16px;
+}
+
+.close-btn div {
+    font-size: 15px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
 .mode .overlay {
   position:fixed;
   top:0;
@@ -616,7 +633,7 @@ html,body {
   position:relative;
 }
 .mode .window .inner {
-  margin: 30px 20px 20px;
+  margin: 40px 20px 20px;
 }
 .mode .window h1 {
   background-image: -moz-linear-gradient(center top , rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0)), url("/assets/scaletake2b.png");
@@ -634,7 +651,7 @@ html,body {
   padding: 14px 0 14px 28px;
   position: relative;
   text-shadow: -1px -1px 0 #39153B;
-  top: 10px;
+  top: 20px;
   width: 100%;
 }
 
