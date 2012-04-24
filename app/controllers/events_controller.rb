@@ -24,7 +24,7 @@ end
 class EventsController < ApplicationController
   # GET /events
   # GET /events.json
-  before_filter :authenticate_user!
+  
   
   def index
 
@@ -87,7 +87,7 @@ class EventsController < ApplicationController
   end
 
   def fromRaw
-    
+    #before_filter :authenticate_user!
     authorize! :fromRaw, @user, :message => 'Not authorized as an administrator.'
     puts params
 
