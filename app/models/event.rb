@@ -11,4 +11,35 @@ class Event < ActiveRecord::Base
         indexes description
         indexes venue.name
   end
+
+  def matches? (search)
+    if (search.nil? || search == "")
+      return true
+    end
+    search = search.gsub(/[^0-9a-z ]/i, '').downcase
+    searches = search.split(' ')
+    
+    searches.each do |word|
+      word += ' '
+      title = self.title.nil? ? ' ' : self.title.gsub(/[^0-9a-z ]/i, '').downcase + ' '
+      description = self.description.nil? ? ' ' : self.description.gsub(/[^0-9a-z ]/i, '').downcase + ' '
+      venue_name = self.venue.name.nil? ? ' ' : self.venue.name.gsub(/[^0-9a-z ]/i, '').downcase + ' '
+      if !(title.include?(word) || description.include?(word) || venue_name.include?(word))
+        return false
+      end
+    end
+
+    return true
+  end
+
+  def score
+    if self.views == 0
+      return 0
+    end
+    n = self.views
+    p = self.clicks
+    z = 1.96
+    phat = 1.0*p/n
+    return (phat + z*z/(2*n) - z * Math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+  end
 end

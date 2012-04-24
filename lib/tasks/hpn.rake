@@ -20,11 +20,13 @@ task :update_occurrences => :environment do
 			if (!occurrence.recurrence.gen_occurrences(1) && occurrence.recurrence.occurrences.count == 1)
 				occurrence.recurrence.destroy
 			else
+				occurrence.recurrence.save
 				occurrence.destroy
 			end
 		end
 	end
 end
+
 namespace :api do
 
 	desc "generate venues from raw_venues"
@@ -48,7 +50,6 @@ namespace :api do
 			raw_venue.save
 		end
 	end
-
 
 	desc "pull venues from apis"
 	task :get_venues => :environment do
@@ -74,7 +75,7 @@ namespace :api do
 				raw_venue = RawVenue.create({
 				    :name => html_ent.decode(item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-venue-name"].text),
 				   	:description => html_ent.decode(item.elements["description"].text), 
-				   	:url => html_ent.decode(item.elements["link"].text),
+				   	:url => html_ent.decode(item.elements["xCal:x-calconnect-venue"].elements["xCal:url"] ? item.elements["xCal:x-calconnect-venue"].elements["xCal:url"].text : nil),
 				   	:address => html_ent.decode(item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-street"].text),
 				   	:city => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-city"].text,
 				    :state_code => item.elements["xCal:x-calconnect-venue"].elements["xCal:adr"].elements["xCal:x-calconnect-region"].text,
@@ -89,9 +90,17 @@ namespace :api do
 			end
 		end until false
 	end
+
+	desc "flag all old events as deleted"
+	task :trim_events => :environment do
+		RawEvent.where("start <= ? AND deleted IS NULL",DateTime.now).each do |o|
+			o.deleted = true
+			o.save
+		end
+	end
 	 
 	desc "pull events from apis"
-	task :get_events, [:until_time]  => :environment do |t, args|
+	task :get_events, [:until_time]  => [:trim_events, :environment] do |t, args|
 		d_until = args[:until_time] ? DateTime.parse(args[:until_time]) : DateTime.now.advance(:weeks => 1)
 
 		puts "getting events before " + d_until.to_s

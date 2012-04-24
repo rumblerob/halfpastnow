@@ -1,6 +1,10 @@
 /* Global styles */
 
 
+
+
+
+
 @font-face
 {
   font-family: UbuntuMonoBold;
@@ -126,9 +130,13 @@ H6
   box-shadow: -1px -1px 0 #39153B;
   color: #532156;
 }
-#header .two .search INPUT:-moz-placeholder, #header .two .search INPUT::-webkit-input-placeholder
+input:-moz-placeholder
 {
-  color: #711875;
+  color: #3C3C57;
+}
+input::-webkit-input-placeholder
+{
+  color: #3C3C57;
 }
 #header .two .search INPUT.terms
 {
@@ -294,6 +302,19 @@ H6
   background-color: white;
   color:#13133A;
 }
+#content .sidebar .inner .filter.date .time-range
+{
+    margin-right: 8px;
+    margin-top: 9px;
+}
+#content .sidebar .inner .filter.date .time-display
+{
+    color: #13133A;
+    margin-top: 2px;
+    font-variant: small-caps;
+    margin-right: 8px;
+    text-align: right;
+}
 #content .sidebar .inner .filter.tags
 {
   margin-right: 10px;
@@ -431,19 +452,18 @@ H6
 }
 #content .main .inner .header
 {
-  font-size: 32px;
+  font-size: 16px;
   font-weight: bold;
-  letter-spacing: -3px;
-  margin: 0 10px 0 0;
+  letter-spacing: -1px;
   text-transform: uppercase;
-  background-color: white;
-  padding: 16px;
-  color: #13133A;
+  background-color: #5A5A76;
+  padding: 8px 16px;
+  color: white;
   box-shadow: 3px 2px 8px #666666;
 } 
 #content .main .inner .header .location
 {
-  color: #242455;
+  color: #EAEAF6;
 }
 #content .main .inner .events LI
 {

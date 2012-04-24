@@ -23,10 +23,10 @@ every 1.day, :at => '12:00 am' do
   rake "update_occurrences"
 end
 
-every 2.hours do
-  rake "ts:index"
-end
+# every 2.hours do
+#   rake "ts:index"
+# end
 
-every :reboot do
-  rake "ts:start"
-end
+# every :reboot do
+#   rake "ts:start"
+# end
