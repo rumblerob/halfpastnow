@@ -139,7 +139,6 @@ ActiveRecord::Schema.define(:version => 20120423203957) do
     t.datetime "updated_at"
   end
 
-<<<<<<< HEAD
   create_table "things", :force => true do |t|
     t.string   "name"
     t.integer  "parent_id"
@@ -147,7 +146,6 @@ ActiveRecord::Schema.define(:version => 20120423203957) do
     t.datetime "updated_at"
   end
 
-=======
   create_table "users", :force => true do |t|
     t.string   "email",                  :default => "", :null => false
     t.string   "encrypted_password",     :default => "", :null => false
@@ -175,7 +173,6 @@ ActiveRecord::Schema.define(:version => 20120423203957) do
 
   add_index "users_roles", ["user_id", "role_id"], :name => "index_users_roles_on_user_id_and_role_id"
 
->>>>>>> d7ed925f032b2fe64c7b3d8b4556861f7f967c03
   create_table "venues", :force => true do |t|
     t.string   "name"
     t.text     "description"
