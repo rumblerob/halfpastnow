@@ -24,6 +24,8 @@ end
 class EventsController < ApplicationController
   # GET /events
   # GET /events.json
+  before_filter :authenticate_user!
+  
   def index
 
     @ZoomDelta = {
@@ -85,6 +87,8 @@ class EventsController < ApplicationController
   end
 
   def fromRaw
+    
+    authorize! :fromRaw, @user, :message => 'Not authorized as an administrator.'
     puts params
 
     if request.post? 

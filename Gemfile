@@ -38,6 +38,10 @@ gem 'htmlentities'
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
 
+gem 'devise'
+gem 'cancan'
+gem 'rolify'
+
 group :test do
   # Pretty printed test output
   gem 'turn', '~> 0.8.3', :require => false
