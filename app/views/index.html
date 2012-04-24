@@ -10,17 +10,28 @@
 		<div class="menu-element">about us</div>
 		<div class="menu-element">blog</div>
 		<div class="menu-element">contact us</div>
-		<div class="menu-element right">login / signup</div>
+		<div class="menu-element right">login / sign up</div>
 	</div>
 	<div class="two">
 		<div class="inner">
 			
 			<div class="search">
-				find
+				findit
 				<input type="text" class="terms" placeholder="stuff to do"/>
 				around
 				<input type="text" class="location" placeholder="a point in space"/>
 				<button><img src="search2.png" /></button> 
+				
+				<% if user_signed_in? %>
+							  <%= link_to('Logout', destroy_user_session_path, :method => :delete) %>        
+							<% else %>
+							  <%= link_to('Login', new_user_session_path)  %>  
+							<% end %> / 
+							<% if user_signed_in? %>
+							  <%= link_to('Edit registration', edit_user_registration_path) %>
+							<% else %>
+							  <%= link_to('Register', new_user_registration_path)  %>
+							<% end %>
 			</div>
 		</div>
 	</div>

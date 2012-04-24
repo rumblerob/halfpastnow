@@ -28,5 +28,15 @@ Myapp::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
   
+  # Mail options 
+  ##TODO: Verify this is the correct host
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+  config.action_mailer.delivery_method = :smtp
+  # change to false to prevent email from being sent during development
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.default :charset => "utf-8"
+  
+  
   config.log_level = :warn
 end
