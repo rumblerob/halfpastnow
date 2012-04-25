@@ -27,6 +27,19 @@ task :update_occurrences => :environment do
 	end
 end
 
+namespace :db do
+
+	desc "load in tags and raw venues"
+	task :init, [:location] => :environment do |t, args|
+		location = args[:location] || "development"
+		system("psql myapp_" + location + " < tags.dump")
+		system("psql myapp_" + location + " < raw_venues_austin360.dump")
+		system("rake api:convert_venues")
+	end
+
+end
+
+
 namespace :api do
 
 	desc "generate venues from raw_venues"
