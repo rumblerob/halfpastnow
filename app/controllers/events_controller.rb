@@ -77,7 +77,7 @@ class EventsController < ApplicationController
     #   filter on a bounding box with center at location = center of austin and zoom = low
 
     
-
+    puts "heree................."
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @events }
@@ -183,7 +183,7 @@ class EventsController < ApplicationController
     end
 
     # filter by offset and amount
-
+    
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @events.to_json(:include => [:occurrences, :venue]) }

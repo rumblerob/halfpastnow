@@ -445,6 +445,7 @@ H6
 {
   color: #242455;
 }
+
 #content .main .inner .events LI
 {
   margin: 10px 10px 0 0;
@@ -457,7 +458,7 @@ H6
 {
   display: none;
 }
-
+/**********************************************************************/
 #content .main .inner .events LI .one
 {
   margin-left: 101px;
@@ -487,6 +488,7 @@ H6
   color:#000000;
   text-decoration:none;
 }
+
 #content .main .inner .events LI .description
 {
   font-size: 12px;
@@ -495,6 +497,7 @@ H6
   height: 30px;
   overflow: hidden;
 }
+
 #content .main .inner .events LI .index
 {
   float: left;
@@ -511,6 +514,7 @@ H6
   box-shadow: 2px 2px 5px rgba(0,0,0,.5) inset;
   text-shadow: 2px 2px 5px rgba(0,0,0,.5);
 }
+
 
 #content .main .inner .events LI .endex {
   float: right;
@@ -583,6 +587,7 @@ H6
   font-size: 15px;
   font-variant: small-caps;
 }
+
 html,body {
   width:100%;
   height:100%;
@@ -732,4 +737,204 @@ html,body {
   cursor:pointer;
   width:14px;
   text-align:center;
+}
+/*#content .main .inner .events LI .index*/
+/*.venue.mode .overlay .window .inner .menu UL .venue.mode .venue.mode.index2*/
+/*
+.venue.mode .overlay .window .inner .menu .venue.mode.inner
+{
+  padding: 0 0 0 10px;
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.header
+{
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: -3px;
+  margin: 0 10px 0 0;
+  text-transform: uppercase;
+  background-color: white;
+  padding: 16px;
+  color: #13133A;
+  box-shadow: 3px 2px 8px #666666;
+} 
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI
+{
+  margin: 10px 10px 0 0;
+  height: 60px;
+  background-color: white;
+  padding: 5px 0 5px 5px;
+  box-shadow: 3px 2px 8px #666666;
+}
+
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events-seed
+{
+  display: none;
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.index2
+{
+  float: left;
+  margin-right: 5px;
+  margin-top: 0.7px;
+  width: 30px;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  background-color: #A3A3C2;
+  color: white;
+  font-family: UbuntuMonoBold, sans-serif;
+  font-size: 22px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,.5) inset;
+  text-shadow: 2px 2px 5px rgba(0,0,0,.5);
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.endex2 {
+  float: right;
+  width: 6px;
+  height: 60px;
+  background-color: #A3A3C2;
+  position: relative;
+}
+
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.when2
+{
+  position: relative;
+  text-align: center;
+  border-radius: 0;
+  background-color: #49499E;
+  color: #FFFFFF;
+  font-family: UbuntuMonoBold, sans-serif;
+  float: left;
+  width: 60px;
+  height: 60px;
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.when2.sun2 .venue.mode.mod2
+{
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 60px;
+  font-size: 14px;
+  letter-spacing: 3px;
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.when2.sun2 .venue.mode.day2
+{
+  position: absolute;
+  top: 30px;
+  width: 60px;
+  font-size: 35px;
+    line-height: 0;
+}
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.when2.sun2 .venue.mode.time2
+{
+  position: absolute;
+  top: 42px;
+  width: 60px;
+  font-size: 15px;
+  font-variant: small-caps;
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.one2
+{
+  margin-left: 101px;
+  margin-right: 26px;
+}
+
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events LI .venue.mode.one2 .name
+{
+  font-size: 18px;
+  font-weight: bold;
+  color: #13133A;
+  text-decoration:none;
+  cursor:pointer;
+}
+
+
+.venue.mode .overlay .window .inner .menu UL .venue.mode .venue.mode.index2
+{
+  float: left;
+  margin-right: 5px;
+  margin-top: 0.7px;
+  width: 30px;
+  height: 60px;
+  text-align: center;
+  line-height: 60px;
+  background-color: #A3A3C2;
+  color: white;
+  font-family: UbuntuMonoBold, sans-serif;
+  font-size: 22px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,.5) inset;
+  text-shadow: 2px 2px 5px rgba(0,0,0,.5);
+}
+
+.venue.mode .overlay .window .inner .menu UL .venue.mode LI .venue.mode.endex2 {
+  float: right;
+  width: 6px;
+  height: 60px;
+  background-color: #A3A3C2;
+  position: relative;
+}
+
+.venue.mode .overlay .window .inner .menu UL .venue.mode .venue.mode.when2.sun2 .venue.mode.mod2
+{
+position: absolute;
+top: 2px;
+left: 2px;
+width: 60px;
+font-size: 14px;
+letter-spacing: 3px;
+}
+.venue.mode .overlay .window .inner .menu UL .venue.mode .venue.mode.when2
+{
+  position: relative;
+  text-align: center;
+  border-radius: 0;
+  background-color: #49499E;
+  color: #FFFFFF;
+  font-family: UbuntuMonoBold, sans-serif;
+  float: left;
+  width: 60px;
+  height: 60px;
+}
+.venue.mode .overlay .window .inner .menu UL .venue.mode .venue.mode.when2 .venue.mode.day2
+{
+  position: absolute;
+  top: 30px;
+  width: 60px;
+  font-size: 35px;
+    line-height: 0;
+}
+.venue.mode .overlay .window .inner .menu UL .venue.mode .venue.mode.when2 .venue.mode.time2
+{
+  position: absolute;
+  top: 42px;
+  width: 60px;
+  font-size: 15px;
+  font-variant: small-caps;
+}
+.venue.mode .overlay .window .inner .menu UL .venue.mode LI
+{
+  margin: 10px 10px 0 0;
+  height: 60px;
+  background-color: white;
+  padding: 5px 0 5px 5px;
+  box-shadow: 3px 2px 8px #666666;
+}
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events-seed
+{
+  display: none;
+}
+.venue.mode .overlay .window .inner .menu .venue.mode.inner .venue.mode.events .venue.mode.one2 .venue.mode.description2
+{
+  font-size: 12px;
+  margin-top: 4px;
+  color: #888888;
+  height: 30px;
+  overflow: hidden;
 }

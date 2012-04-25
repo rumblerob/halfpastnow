@@ -342,6 +342,32 @@ function modal(thing) {
     });
   } else {
     $.getJSON('/venues/show/' + thing.id + '.json', function(venue) {
+      var events = venue.events;
+      
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed li:not(:last-child)').each(function() {
+      $(this).remove();
+
+      });
+
+      for(var i in events) {
+      var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
+      var li = $($('.venue.mode .overlay .window .inner .menu .selected .events-seed li:last-child').clone().wrap('<ul>').parent().html());
+      
+      li.find(".name").attr("href", "http://localhost:3000/?event_id="+events[i].id);
+      li.find(".name").html(events[i].title);
+      li.find(".index").html(parseInt(i) + 1);
+      li.find(".mod").html(start.toString("MM/dd"));
+      li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
+      li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
+      li.find(".one .description").html(events[i].description);
+      li.prependTo('.venue.mode .overlay .window .inner .menu .selected .events-seed');
+    } 
+
+      $('.venue.mode .overlay .window .inner .menu .selected .events').empty();
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed li:not(:last-child)').each(function() {
+      $(this).prependTo('.venue.mode .overlay .window .inner .menu .selected .events');
+
+    });
       
       $('.mode.venue h1').html(venue.name);
       $('.mode.venue .address.one').html(venue.address);
@@ -354,8 +380,6 @@ function modal(thing) {
       else {
         $('.mode.venue .phone span').html(venue.phonenumber);
       }
-      //$('.mode.venue .url a').html(venue.name);
-      //$('.mode.venue .url a').attr("href", venue.url);
       if (venue.url=="") { 
         $('.mode.venue .url a').html("Not Available");
       } 
@@ -370,4 +394,3 @@ function modal(thing) {
   
   
 }
-
