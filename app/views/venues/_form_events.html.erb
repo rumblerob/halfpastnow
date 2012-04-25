@@ -141,7 +141,7 @@
 	    <% unless (recurrence.id.nil?) %>
 		    <div class="recurrence">
 		    	<span><%= "every " + ((recurrence.every_other.nil? || recurrence.every_other == 0) ? "" : ((recurrence.every_other == 1) ? "other" : to_ordinal(recurrence.every_other))) %></span>
-		    	<span><%= (recurrence.day_of_week && recurrence.week_of_month) ? to_ordinal(recurrence.week_of_month) + " " + week[recurrence.day_of_week] : (recurrence.day_of_month ? to_ordinal(recurrence.day_of_month) : (recurrence.day_of_week ? week[recurrence.day_of_week] : "day")) %></span>
+		    	<span><%= (recurrence.day_of_week && recurrence.week_of_month) ? to_ordinal(recurrence.week_of_month) + " " + @week[recurrence.day_of_week] : (recurrence.day_of_month ? to_ordinal(recurrence.day_of_month) : (recurrence.day_of_week ? @week[recurrence.day_of_week] : "day")) %></span>
 		    	<span>from <%= recurrence.start.to_time.strftime("%I:%M%P") %></span>
 		    	<span>to <%= recurrence.end.to_time.strftime("%I:%M%P") %></span>
 			    <div class="remove">

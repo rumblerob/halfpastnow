@@ -24,6 +24,8 @@ end
 class EventsController < ApplicationController
   # GET /events
   # GET /events.json
+  
+  
   def index
 
     @ZoomDelta = {
@@ -37,7 +39,11 @@ class EventsController < ApplicationController
     @zoom = 11
 
     # @events = Event.search params[:search]
-    @events = Event.all
+    @events = Occurrence.where("start >= ? AND start <= ?", DateTime.now, DateTime.now.end_of_day).collect{ |o| o.event }.uniq
+
+    if (params[:search] && params[:search] != "")
+      @events.select! { |event| event.matches? params[:search] }
+    end
 
     if params[:location] && params[:location] != ""
       json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
@@ -53,31 +59,23 @@ class EventsController < ApplicationController
     @long_low = @long - @long_delta
     @long_high = @long + @long_delta
 
-    # puts "from " + @lat_low.to_s + " to " + @lat_high.to_s
-    # puts "from " + @long_low.to_s + " to " + @long_high.to_s
-
-    # puts "events_size = " + @events.count.to_s
-
-    # @events.each do |event|
-    #   puts @lat_low.to_s + " ? " + event.venue.latitude.to_s + " ? " + @lat_high.to_s
-    #   puts @long_low.to_s + " ? " + event.venue.longitude.to_s + " ? " + @long_high.to_s
-    #   puts ((event.venue.latitude >= @lat_low) && (event.venue.latitude <= @lat_high) && (event.venue.longitude >= @long_low) && (event.venue.longitude <= @long_high))
-    # end
-
     @events.select! do |event| 
       ((event.venue.latitude >= @lat_low) && (event.venue.latitude <= @lat_high) && (event.venue.longitude >= @long_low) && (event.venue.longitude <= @long_high))
     end
 
-    # puts "new events_size = " + @events.count.to_s
-
-    # if location is in params:
-    #   geolocate and find lat/long
-    #   filter on a bounding box with center at location = lat/long and zoom = high
-    # else
-    #   filter on a bounding box with center at location = center of austin and zoom = low
-
+    @events.sort_by do |event| 
+      event.score
+    end.reverse
     
     puts "heree................."
+
+    @events.each do |event| 
+      event.views += 1 
+      event.venue.views += 1
+      event.save
+      event.venue.save
+    end
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @events }
@@ -85,6 +83,8 @@ class EventsController < ApplicationController
   end
 
   def fromRaw
+    #before_filter :authenticate_user!
+    authorize! :fromRaw, @user, :message => 'Not authorized as an administrator.'
     puts params
 
     if request.post? 
@@ -139,16 +139,24 @@ class EventsController < ApplicationController
     # @events = Event.search params[:search]
     @events = Event.all
 
+    if (params[:search] && params[:search] != "")
+      @events.select! { |event| event.matches? params[:search] }
+    end
+
     # find occurrences that start between params[:start] and params[:end] and are on params[:day] day of the week 
     if(params[:start] || params[:end] || params[:day])
 
-      event_start = DateTime.parse(params[:start] || "1900-01-01").to_s
-      event_end = DateTime.parse(params[:end] || "9999-12-31").to_s
+      event_start = Time.at(params[:start] ? params[:start].to_i : 0).to_datetime.to_s
+      event_end = Time.at(params[:end] ? params[:end].to_i : 32513174400).to_datetime.to_s
 
-      event_days = params[:day].split(',')
+      event_days = params[:day] ? params[:day].split(",") : nil
       
-      @occurrences = Occurrence.where("start >= ? AND start <= ? AND day_of_week IN (?)", event_start, event_end, event_days)
-      
+      if event_days
+        @occurrences = Occurrence.where("start >= ? AND start <= ? AND day_of_week IN (?)", event_start, event_end, event_days)
+      else
+        @occurrences = Occurrence.where("start >= ? AND start <= ?", event_start, event_end)
+      end
+
       # puts @occurrences
       # get events of those occurrences
       @events = @events & @occurrences.collect{ |o| o.event }
@@ -182,8 +190,13 @@ class EventsController < ApplicationController
       end
     end
 
-    # filter by offset and amount
-    
+    @events.each do |event| 
+      event.views += 1 
+      event.venue.views += 1
+      event.save
+      event.venue.save
+    end
+
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @events.to_json(:include => [:occurrences, :venue]) }
@@ -194,6 +207,8 @@ class EventsController < ApplicationController
   # GET /events/1.json
   def show
     @event = Event.find(params[:id])
+    @event.clicks += 1
+    @event.save
 
     respond_to do |format|
       format.html # show.html.erb

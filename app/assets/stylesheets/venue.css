@@ -150,3 +150,7 @@ select.interval {
 .tag.child {
 
 }
+
+.field .url {
+  font-size:14px;
+}

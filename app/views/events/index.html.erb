@@ -144,6 +144,17 @@
 			<img class="logo" src="/assets/halfpastnow.png" />
 			<div class="menu-element">about us</div>
 			<div class="menu-element">contact us</div>
+			<div class="menu-element right"><% if user_signed_in? %>
+						  <%= link_to('logout', destroy_user_session_path, :method => 'delete') %>        
+						<% else %>
+						  <%= link_to('login', new_user_session_path)  %>  
+						<% end %> / 
+						<% if user_signed_in? %>
+						  <%= link_to('edit registration', edit_user_registration_path) %>
+						<% else %>
+						  <%= link_to('register', new_user_registration_path)  %>
+						<% end %>
+			</div>
 		</div>
 		<div class="two">
 			<div class="inner">
@@ -183,8 +194,8 @@
 							<span class="selected">today</span><span>tomorrow</span><span class="custom-radio">custom</span>
 						</div>
 						<div>
-							<div class="custom-select selected"></div>
-							<div class="custom-select"></div>
+							<div class="custom-select selected"><div class="today time-range"></div><div class="today time-display">all day</div></div>
+							<div class="custom-select"><div class="tomorrow time-range"></div><div class="tomorrow time-display">all day</div></div>
 							<div class="custom-select"><input type="text" class="start date" placeholder=" from now"/><input type="text" class="end date" placeholder="to forever"/></div>
 						</div>
 					</div>
@@ -202,7 +213,7 @@
 		<div id="map"></div>
     	<div class="main">
 			<div class="inner">
-				<div class="header"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> around <span class="location">Austin</span></div>
+				<div class="header"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> nearby<!--around <span class="location">Austin</span>--></div>
 				<ul class="events">
 					<% 	@events.each_with_index do |event, index| 
 							eventListElement(event, index)
@@ -241,13 +252,13 @@
 					<div class="price"></div>
 				</div>
 				<div class="menu">
-					<ul>
+					<!--<ul>
 						<li class="selected">description</li>
-						<!--li>details</li-->
-						<!--li>gallery</li-->
-						<!--li>comments <strong>(5)</strong></li-->
-					</ul>
-					<div class="selected">It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to heaven, we were all going direct the other way - in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.</div>
+						<!li>details</li>
+						<!li>gallery</li>
+						<!li>comments <strong>(5)</strong></li>
+					</ul>-->
+					<div class="selected description"></div>
 					<!--div>details</div-->
 					<!--div>gallery</div-->
 					<!--div>comments</div-->

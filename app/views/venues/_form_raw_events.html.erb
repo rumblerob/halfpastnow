@@ -12,6 +12,10 @@
 		<%= hidden_field_tag :raw_event_id, raw_event.id %>
 		<div class="main event">
 			<div class="field">
+			  <%= label_tag :URL %>
+			  <a class="url" href="<%= raw_event.url %>"><%= raw_event.from %> link</a>
+			</div>
+			<div class="field">
 			  <%= e.label :title %>
 			  <%= e.text_field :title %>
 			</div>
@@ -30,7 +34,7 @@
 					<div class="parent tag">
 					<%= check_box_tag @iStrName, tag.id, (event.tags.include?(tag) || @venue.tags.include?(tag)), :id => (@iStrId + tag.id.to_s) %>
 					<%= label_tag @iStrName, tag.name, :for => (@iStrId + tag.id.to_s) %>
-				</div>
+					</div>
 					<div class="children">
 					<% tag.childTags.each do |childTag| %>
 						<div class="child tag">
@@ -40,21 +44,22 @@
 					<% end %>
 					</div>
 			    <% end %>
-		    </div>
-			<div class="occurrence">
-				<div class="new-occurrence">
-					<%= e.fields_for :occurrences, occurrence do |o| %>
-					    <div class="field">
-					    	<%= o.label :start %><%= o.datetime_select :start, :prompt => true, :ampm => true %>
-					    </div>
-					    <div class="field">
-					    	<%= o.label :end %><%= o.datetime_select :end, :prompt => true, :ampm => true %>
-					    </div>
-					<% end %>
+		    	</div>
+				<div class="occurrence">
+					<div class="new-occurrence">
+						<%= e.fields_for :occurrences, occurrence do |o| %>
+						    <div class="field">
+						    	<%= o.label :start %><%= o.datetime_select :start, :prompt => true, :ampm => true %>
+						    </div>
+						    <div class="field">
+						    	<%= o.label :end %><%= o.datetime_select :end, :prompt => true, :ampm => true %>
+						    </div>
+						<% end %>
+					</div>
 				</div>
-			</div>
-			<div class="actions">
-				<%= e.submit %>
+				<div class="actions">
+					<%= e.submit %>
+				</div>
 			</div>
 		</div>
 	<% end %>

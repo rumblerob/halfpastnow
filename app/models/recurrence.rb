@@ -1,3 +1,5 @@
+require 'pp'
+
 class Interval
   DAY = 0
   WEEK = 1
@@ -6,6 +8,24 @@ end
 
 class Recurrence < ActiveRecord::Base
   has_many :occurrences, :dependent => :destroy
+
+  def create
+    puts "generating occurrences (create)"
+    if (self.occurrences.length == 0)
+      puts "if"
+      self.gen_occurrences
+    end
+    super
+  end
+
+  def update
+    puts "generating occurrences (update)"
+    if (self.occurrences.length == 0)
+      puts "if"
+      self.gen_occurrences
+    end
+    super
+  end
 
   def next_occurrence(time)
     until_time = (range_end && range_end.to_time < Time.now.advance(:years => 1)) ? range_end.to_time : Time.now.advance(:years => 1)
@@ -80,9 +100,6 @@ class Recurrence < ActiveRecord::Base
       start_datetime = counter_time.advance(:hours => self.start.to_time.hour, :minutes => self.start.to_time.min).to_datetime
       end_datetime = start_datetime.to_time.advance(:hours => event_length.to_i/3600, :minutes => (event_length.to_i%3600)/60).to_datetime
       occurrences.build(:start => start_datetime, :end => end_datetime, :event_id => self.event_id, :day_of_week => start_datetime.to_date.wday)
-      
-      #puts "occurrence created at " + start_datetime.to_s
-
 
       #find next occurrence time
       counter_time = next_occurrence(counter_time)
@@ -93,7 +110,7 @@ class Recurrence < ActiveRecord::Base
       counter_occurrences += 1
     end
     
-    self.save
+    # self.save
 
     return counter_occurrences > 0
   end

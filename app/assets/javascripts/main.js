@@ -1,5 +1,33 @@
 $(function() {
 
+  $(".today.time-range").slider({
+    range: true,
+    min: 0,
+    max: 24,
+    values: [ 0, 24 ],
+    slide: function( event, ui ) {
+      if(ui.values[0] == 0 && ui.values[1] == 24)
+        $(".today.time-display").html("all day");
+      else
+        $(".today.time-display").html("from " + hours[ui.values[0]] + " to " + hours[ui.values[1]]);
+    },
+    stop: filterChange
+  });
+
+  $(".tomorrow.time-range").slider({
+    range: true,
+    min: 0,
+    max: 24,
+    values: [ 0, 24 ],
+    slide: function( event, ui ) {
+      if(ui.values[0] == 0 && ui.values[1] == 24)
+        $(".tomorrow.time-display").html("all day");
+      else
+        $(".tomorrow.time-display").html("from " + hours[ui.values[0]] + " to " + hours[ui.values[1]]);
+    },
+    stop: filterChange
+  });
+
   $('.more-tags').click(function() {
     if($('.filter.tags').hasClass('expanded')) {
       $('.more-tags').html("&#x25BE; more");
@@ -27,7 +55,7 @@ $(function() {
 
   $('#content .sidebar .inner .filter.price span').click(filterChange);
   $('#content .sidebar .inner .filter.day span').click(filterChange);
-  $('#content .sidebar .inner .filter.date span:not(.custom-radio)').click(filterChange);
+  $('#content .sidebar .inner .filter.date .filters span').click(filterChange);
 
   $('#content .sidebar .inner .filter.date .date ').datetimepicker({
     ampm: true,
@@ -77,6 +105,9 @@ $(function() {
 
 var mapOffset;
 
+var hours = ['midnight','1 am','2 am','3 am','4 am','5 am','6 am','7 am','8 am','9 am','10 am','11 am','noon',
+                     '1 pm','2 pm','3 pm','4 pm','5 pm','6 pm','7 pm','8 pm','9 pm','10 pm','11 pm','midnight',];
+
 var day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
 window.addEventListener("popstate", function(e) {
@@ -88,10 +119,11 @@ window.addEventListener("popstate", function(e) {
   }
 });
 
+// var today = Date.today();
+
 var filter = {
-  dateType: 0,
-  start: null,
-  end: null,
+  start: Date.today(),
+  end: Date.today().add({days: 1}),
   day: [0,1,2,3,4,5,6],
   price: [0,1,2,3,4],
   tags: [],
@@ -105,8 +137,6 @@ var filter = {
 
 var boundsChangedFlag = false;
 function boundsChanged() {
-  // console.log(map.getBounds().getSouthWest());
-  // console.log(map.getBounds().getNorthEast());
   filter.latMin = map.getBounds().getSouthWest().lat();
   filter.latMax = map.getBounds().getNorthEast().lat();
   filter.longMin = map.getBounds().getSouthWest().lng();
@@ -116,10 +146,12 @@ function boundsChanged() {
   }
   boundsChangedFlag = true;
 }
+
 function closeMode(){
   history.pushState({}, "main mode", "/");
   demodal();
 }
+
 function placeMarkers(params) {
   if (typeof params.clear === 'undefined' || params.clear === true)
     clearMarkers();
@@ -140,26 +172,26 @@ function clearMarkers() {
 function placeMarker(lat, long) {
   var i = markers.length;
 
-  var marker = new MarkerWithLabel({
+  var marker = new google.maps.Marker({ //MarkerWithLabel({
     map: map,
     position: new google.maps.LatLng(lat,long),
     icon: "/assets/marker.png",
-    index: (markers.length + 1),
-    labelContent: (markers.length + 1),
-    labelAnchor: new google.maps.Point(8, 34),
-    labelClass: "markerLabel" // the CSS class for the label
+    index: (markers.length + 1) //,
+    //labelContent: (markers.length + 1),
+    //labelAnchor: new google.maps.Point(8, 34),
+    //labelClass: "markerLabel" // the CSS class for the label
   });
 
   google.maps.event.addListener(marker, 'mouseover', function() {
     marker.setIcon("/assets/marker_hover.png");
-    marker.set("labelStyle", { color: "#FFFFFF" });
+    //marker.set("labelStyle", { color: "#FFFFFF" });
     $("#content .main .inner .events LI:nth-child(" + marker.index + ")").addClass("hover");
     markers[i].foo = "bar";
   });
 
   google.maps.event.addListener(marker, 'mouseout', function() {
     marker.setIcon("/assets/marker.png");
-    marker.set("labelStyle", {});
+    //marker.set("labelStyle", {});
     $("#content .main .inner .events LI:nth-child(" + marker.index + ")").removeClass("hover");
   });
 
@@ -196,13 +228,28 @@ function updateFilter() {
   for(var i in selectedTags) {
     filter.tags.push(selectedTags[i].id);
   }
-  filter.dateType = $('#content .sidebar .inner .filter.date span.selected').first().index() - 1;
-  filter.start = $('#content .sidebar .inner .filter.date .start.date').datepicker("getDate");
-  filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
+
+
+  switch ($(".filter.date .filters .selected").index()) {
+    case 0:
+      filter.start = Date.today().add({hours:$(".today.time-range").slider("values",0)});
+      filter.end = Date.today().add({hours:$(".today.time-range").slider("values",1)});
+      break;
+    case 1:
+      filter.start = Date.today().add({hours:$(".tomorrow.time-range").slider("values",0), days:1});
+      filter.end = Date.today().add({hours:$(".tomorrow.time-range").slider("values",1), days:1});
+      break;
+    case 2:
+      filter.start = $('#content .sidebar .inner .filter.date .start.date').datepicker("getDate");
+      filter.end = $('#content .sidebar .inner .filter.date .end.date').datepicker("getDate");
+      break;
+  }
+  
   filter.day = [];
   $('#content .sidebar .inner .filter.day span.selected').each(function () {
     filter.day.push($(this).index());
   });
+
   filter.price = [];
   $('#content .sidebar .inner .filter.price span.selected').each(function () {
     filter.price.push($(this).index());
@@ -211,11 +258,12 @@ function updateFilter() {
 
 // this gets called on infinite scroll and on filter changes
 function pullEvents() {
-  var query = "dateType=" + filter.dateType;
+  var query = "";
+
   if(filter.start)
-    query += "&start=" + filter.start.getTime();
+    query += "&start=" + (filter.start.getTime() / 1000);
   if(filter.end)
-    query += "&end=" + filter.end.getTime();
+    query += "&end=" + (filter.end.getTime() / 1000);
   if(filter.search)
     query += "&search=" + filter.search;
   if(filter.latMin)
@@ -234,7 +282,9 @@ function pullEvents() {
     query += "&tags=" + filter.tags.reduce(function(a,b) { return a + "," + b; },"").substring(1);
   if(filter.offset)
     query += "&offset=" + filter.offset;
-
+  
+  if(query != "")
+    query = query.substring(1);
 
   $.getJSON("/events/find?" + query, function (events) {
     console.log("http://localhost:3000/events/find?" + query);
@@ -337,6 +387,7 @@ function modal(thing) {
       $('.mode.event .price').html(event.price ? "<strong>Price: </strong> <span>$" + parseFloat(event.price).toFixed(2) + "</span>" : "");
       $('.mode.event .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + event.venue.latitude  +  "," + event.venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.event .map-link').attr("href","http://maps.google.com/maps?q=" + event.venue.latitude  + "," + event.venue.longitude);
+      $('.mode.event .description').html(event.description);
       $('.mode').hide();
       $('.mode.event').show();
     });

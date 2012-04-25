@@ -8,8 +8,8 @@ gem 'rails', '3.1.3'
 gem 'pg'
 gem 'thin'
 
-gem 'thinking-sphinx', '2.0.11'
-gem 'flying-sphinx',   '0.6.4'
+# gem 'thinking-sphinx', '2.0.11'
+# gem 'flying-sphinx',   '0.6.4'
 
 gem 'admin_data', '>= 1.1.16'
 
@@ -37,6 +37,10 @@ gem 'htmlentities'
 
 # To use debugger
 # gem 'ruby-debug19', :require => 'ruby-debug'
+
+gem 'devise'
+gem 'cancan'
+gem 'rolify'
 
 group :test do
   # Pretty printed test output

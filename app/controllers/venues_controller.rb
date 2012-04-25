@@ -22,11 +22,16 @@ class VenuesController < ApplicationController
     @venue = Venue.find(params[:id])
     puts "venue_id in show venues_controller :"
     puts  params[:id]
+    
     @venue_events = @venue.events
     
     #@venue.phonenumber = RawVenue.find_by_name(@venue.name).phone
     #@venue.url = RawVenue.find_by_name(@venue.name).url
     puts @venue.to_json(:include => { :events => { :include => :occurrences }} )
+
+    @venue.clicks += 1
+    @venue.save
+    
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @venue.to_json(:include => { :events => { :include => :occurrences }} ) }
