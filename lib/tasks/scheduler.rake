@@ -4,6 +4,21 @@ require 'pp'
 require 'htmlentities'
 include REXML
 
+namespace :test do 
+	desc "advance timestamps of events' occurrences and recurrences"
+	task :advance => :environment do
+		first_occurrence = Occurrence.order("start").first
+		difference_in_days = Date.today - first_occurrence.start.to_date
+		Occurrence.all.each do |occurrence| 
+			occurrence.start = occurrence.start.advance({days: difference_in_days})
+			if(occurrence.end)
+				occurrence.end = occurrence.end.advance({days: difference_in_days})
+			end
+			occurrence.save
+		end
+	end
+end
+
 desc "discard old occurrences and create new ones from recurrences"
 task :update_occurrences => :environment do
 	puts "update_occurrences"
