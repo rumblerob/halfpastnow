@@ -135,7 +135,7 @@ class EventsController < ApplicationController
     params[:offset] = params[:offset] || 0
 
     # @events = Event.search params[:search]
-    @events = Event.all
+    @events = Event.all.select { |event| event.occurrences.length > 0 }
 
     if (params[:search] && params[:search] != "")
       @events.select! { |event| event.matches? params[:search] }
