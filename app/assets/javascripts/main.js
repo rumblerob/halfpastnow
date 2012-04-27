@@ -282,12 +282,9 @@ function pullEvents() {
     query += "&tags=" + filter.tags.reduce(function(a,b) { return a + "," + b; },"").substring(1);
   if(filter.offset)
     query += "&offset=" + filter.offset;
-  
-  if(query != "")
-    query = query.substring(1);
 
   loading('show');
-  $.getJSON("/events/find?" + query, function (events) {
+  $.getJSON("/events/index?format=json" + query, function (events) {
     var locations = [];
     for(var i in events) {
       var start = Date.parse(events[i].occurrences[0].start.substr(0,19));

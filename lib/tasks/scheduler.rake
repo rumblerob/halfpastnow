@@ -5,7 +5,7 @@ require 'htmlentities'
 include REXML
 
 namespace :test do 
-	desc "advance timestamps of events' occurrences and recurrences"
+	desc "advance timestamps of events' occurrences"
 	task :advance => :environment do
 		first_occurrence = Occurrence.order("start").first
 		difference_in_days = Date.today - first_occurrence.start.to_date
