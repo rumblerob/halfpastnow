@@ -456,6 +456,7 @@ input::-webkit-input-placeholder
 #content .main .inner
 {
   padding: 0 0 0 10px;
+  position: relative;
 }
 #content .main .inner .header
 {
@@ -759,4 +760,11 @@ html,body {
   cursor:pointer;
   width:14px;
   text-align:center;
+}
+
+#loading {
+  display:none;
+  height:66px;
+  width:66px;
+  position:absolute;
 }
