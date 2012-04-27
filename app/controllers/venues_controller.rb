@@ -4,6 +4,9 @@ class VenuesController < ApplicationController
   # GET /venues
   # GET /venues.json
   def index
+    
+    authorize! :index, @user, :message => 'Not authorized as an administrator.'
+    
     # @venues = Venue.all
     @venues = RawEvent.where(:submitted => nil, :deleted => nil).collect { |raw_event| raw_event.raw_venue ? raw_event.raw_venue.venue : nil }.compact
     @num_raw_events = Hash.new(0)
