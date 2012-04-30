@@ -20,21 +20,24 @@ class VenuesController < ApplicationController
   # GET /venues/1.json
   def show
     @venue = Venue.find(params[:id])
-    puts "venue_id in show venues_controller :"
+    puts "venue_id "
     puts  params[:id]
-    
-    @venue_events = @venue.events
-    
-    #@venue.phonenumber = RawVenue.find_by_name(@venue.name).phone
-    #@venue.url = RawVenue.find_by_name(@venue.name).url
-    puts @venue.to_json(:include => { :events => { :include => :occurrences }} )
-
     @venue.clicks += 1
     @venue.save
-    
+    @occ  = []
+    @recc = []
+    @eventsVenue = @venue.events
+    @eventsVenue.each do |event|
+    @occurrence =  Occurrence.find_by_event_id(event.id)
+    if @occurrence.recurrence_id==nil then puts @occ <<  {:timing =>Occurrence.find_all_by_event_id(event.id),:event=>event}#@occurrence
+      else puts  @recc << {:timing =>Recurrence.find_all_by_event_id(event.id),:event=>event} # Recurrence.find_by_event_id(event.id)
+    end
+    end
+    my_json = {:venue => @venue,:occurrences => @occ,:recurrences=>@recc}
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @venue.to_json(:include => { :events => { :include => :occurrences }} ) }
+      #format.json { render json: @venue.to_json(:include => { :events => { :include => [:occurrences,:recurrences] }} ) }
+      format.json { render json: my_json.to_json} 
     end
   end
 
