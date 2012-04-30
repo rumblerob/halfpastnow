@@ -26,12 +26,13 @@
 		map = new google.maps.Map($("#map")[0], myOptions);
 
 		var locations = [];
+		
 		$("#content .main .inner .events li").each(function(index) {
 			var latitude = parseFloat($(this).find(".latitude").html());
 			var longitude = parseFloat($(this).find(".longitude").html());
 			locations.push({lat: latitude, long: longitude});
 		});
-
+		
 		placeMarkers({points: locations});
 
 		google.maps.event.addListener(map, 'idle', boundsChanged);
@@ -97,6 +98,45 @@
 	end
 %>
 
+<%
+	def eventListElement2 (event, index)
+
+%>
+	<li>
+		<div class="venue mode index">
+			<%= index ? (index + 1) : "" %>
+		</div>
+		
+		<div class="venue mode when sun">
+			<div class="venue mode mod">
+				<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
+				<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
+			</div>
+			<div class="venue mode day">
+				<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
+			</div>
+			<div class="venue mode time">
+				<%= event ? event.occurrences.first.start.to_time.strftime("%I:%M%P") : "" %>
+			</div>
+		</div>
+		<div class="venue mode one">
+			
+			<!--div class="venue mode event"><a linkto="event" href=""  class="linkto"></a></div>
+			<!--span href="<%= event ? event.id : "" %>" linkto="event" class="linkto name"><%= event ? event.title : "" %></span-->
+			<a href="" linkto="event" class="linkto name"><%= event ? event.title : "" %></a>
+
+			
+			<div class="venue mode description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
+			
+		</div>
+		<div style="display:none;">
+			<div class="latitude2"><%= event ? event.venue.latitude : "" %></div>
+			<div class="longitude2"><%= event ? event.venue.longitude : "" %></div>
+		</div>
+	</li>
+<%
+	end
+%>
 
 <div id="body">
 	<div id="header">
@@ -180,13 +220,17 @@
 				</div>
 				<ul class="events">
 					<% 	@events.each_with_index do |event, index| 
-							eventListElement(event, index) 
+							eventListElement(event, index)
+							
 						end %>
+
 				</ul>
 				<ul class="events-seed">
 				<%
 					eventListElement(nil, nil)
+
 				%>
+
 				</ul>
 				<img id="loading" src="/assets/ajax-loader.gif" />
 			</div>
@@ -246,6 +290,7 @@
 					<!--div class="price"><strong>Hours:</strong> Daily 5am-10pm</div-->
 				</div>
 				<div class="menu">
+
 					<ul>
 						<li class="selected">events</li>
 						<li>description</li>
@@ -253,7 +298,21 @@
 						<!--li>gallery</li-->
 						<!--li>comments <strong>(2)</strong></li-->
 					</ul>
-					<div class="selected">events</div>
+					<div class="selected">
+
+
+						<ul class="events">
+							<% eventListElement(nil, nil) %>
+						</ul>
+						<ul class="events-seed1">
+							<% eventListElement2(nil, nil) %>
+						</ul>
+						<ul class="events-seed2">
+							<% eventListElement2(nil, nil) %>
+						</ul>
+					</div>
+					
+
 					<!--div>description</div-->
 					<!--div>details</div-->
 					<!--div>gallery</div-->

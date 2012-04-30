@@ -105,8 +105,7 @@ $(function() {
 
 var mapOffset;
 
-var hours = ['midnight','1 am','2 am','3 am','4 am','5 am','6 am','7 am','8 am','9 am','10 am','11 am','noon',
-                     '1 pm','2 pm','3 pm','4 pm','5 pm','6 pm','7 pm','8 pm','9 pm','10 pm','11 pm','midnight',];
+var hours = ['midnight','1 am','2 am','3 am','4 am','5 am','6 am','7 am','8 am','9 am','10 am','11 am','noon','1 pm','2 pm','3 pm','4 pm','5 pm','6 pm','7 pm','8 pm','9 pm','10 pm','11 pm','midnight'];
 
 var day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
@@ -382,6 +381,12 @@ function demodal() {
   modal();
 }
 
+function to_ordinal(num) {
+   
+    var ordinal = ["th","st","nd","rd","th","th","th","th","th","th"] ;
+    return num.toString() + ordinal[num%10];
+}
+
 function modal(thing) {
   if(!thing) {
     $('.mode').hide();
@@ -407,8 +412,79 @@ function modal(thing) {
       $('.mode.event').show();
     });
   } else {
-    $.getJSON('/venues/show/' + thing.id + '.json', function(venue) {
+    $.getJSON('/venues/show/' + thing.id + '.json', function(venueInfo) {
+      venue = venueInfo.venue;
+      recurrences = venueInfo.recurrences;
+      occurrences = venueInfo.occurrences;
+      var week = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] ;
       
+      var index1 = 1;
+      var index2 = 1;
+      var message;
+      var message2;
+      var message3;
+      var message4;
+      var message5="";
+      var li;
+      $('.venue.mode .overlay .window .inner .menu .selected .events').empty();
+      
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:not(:first-child)').each(function() {
+        $(this).remove();
+      });
+    
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
+        $(this).remove();
+      });
+
+      // For recurrences
+      for (var i in recurrences){
+        var event = recurrences[i].event;
+        var timing = recurrences[i].timing;
+
+        for (var j in timing){
+        message = "every " + ((timing[j].every_other == 0) ? "" : ((timing[j].every_other == 1) ? "other" : to_ordinal(timing[j].every_other)));
+        message2 =(timing[j].day_of_week != null && timing[j].week_of_month != null) ? to_ordinal(timing[j].week_of_month) + " " + week[timing[j].day_of_week] :( (timing[j].day_of_month !=null) ? to_ordinal(timing[j].day_of_month) : ((timing[j].day_of_week!=null) ? week[timing[j].day_of_week] : "day"));
+        var startTime = Date.parse(timing[j].start.substr(0,19));
+        var endTime = Date.parse(timing[j].end.substr(0,19));
+        message3 = " from "+ (startTime).toString("hh:mmtt");
+        message4 = " end "+  (endTime).toString("hh:mmtt");
+        if(j!=0) message5 +=" and " + message + message2 + message3 + message4;
+        else message5 = message + message2 + message3 + message4;
+        } 
+       
+        li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:last-child').clone().wrap('<ul>').parent().html());
+        li.find(".mod").html(message5);
+        li.find(".name").attr("href", "http://localhost:3000/?event_id="+event.id);
+        li.find(".name").html(event.title);
+        li.find(".one .description").html(event.description);
+        li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed1');
+        li.find(".index").html(index1++);
+
+      }
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:not(:first-child)').each(function() {
+        $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
+      });
+      
+      // For occurrences
+      for (var i in occurrences){
+        var event = occurrences[i].event;
+        var timing = occurrences[i].timing[0];
+        var start = Date.parse(timing.start.substr(0,19));
+        li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:last-child').clone().wrap('<ul>').parent().html());
+        li.find(".mod").html(start.toString("MM/dd"));
+        li.find(".day").html(day_of_week[timing.day_of_week]);
+        li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
+        li.find(".name").attr("href", "http://localhost:3000/?event_id="+event.id);
+        li.find(".name").html(event.title);
+        li.find(".one .description").html(event.description);
+        li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed2');
+        li.find(".index").html(index2++);
+      }
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
+        $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
+      });
+
+
       $('.mode.venue h1').html(venue.name);
       $('.mode.venue .address.one').html(venue.address);
       $('.mode.venue .address.two').html(venue.city + ", " + venue.state + " " + venue.zip);
@@ -430,10 +506,9 @@ function modal(thing) {
           $('.mode.venue .url a').attr("href", venue.url);
         }
       $('.mode').hide();
-      $('.mode.venue').show();
+      $('.mode.venue').show();    
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed2').hide();
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed1').hide();
     });
   }
-  
-  
 }
-

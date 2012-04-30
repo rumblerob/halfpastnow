@@ -23,8 +23,8 @@ end
 
 class EventsController < ApplicationController
 
+
   def index
-    # @events = Occurrence.where("start >= ? AND start <= ?", DateTime.now, DateTime.now.end_of_day).collect{ |o| o.event }.uniq
 
     #amount, offset, lat_min, lon_min, lat_max, lon_max, price, start, end, [tags]
     params[:amount] = params[:amount] || 10
