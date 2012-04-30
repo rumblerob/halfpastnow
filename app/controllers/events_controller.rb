@@ -22,122 +22,16 @@ class ZoomDelta
 end
 
 class EventsController < ApplicationController
-  # GET /events
-  # GET /events.json
-  
-  
+
+
   def index
-
-    @ZoomDelta = {
-             11 => { :lat => 0.30250564 / 2, :long => 0.20942688 / 2 }, 
-             13 => { :lat => 0.0756264644 / 2, :long => 0.05235672 / 2 }, 
-             14 => {:lat => 0.037808182 / 2, :long => 0.02617836 / 2 }
-            }
-
-    @lat = 30.25
-    @long = -97.75
-    @zoom = 11
-
-    # @events = Event.search params[:search]
-    @events = Occurrence.where("start >= ? AND start <= ?", DateTime.now, DateTime.now.end_of_day).collect{ |o| o.event }.uniq
-
-    if (params[:search] && params[:search] != "")
-      @events.select! { |event| event.matches? params[:search] }
-    end
-
-    if params[:location] && params[:location] != ""
-      json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
-      @lat = json_object["results"][0]["geometry"]["location"]["lat"]
-      @long = json_object["results"][0]["geometry"]["location"]["lng"]
-      @zoom = 14
-    end
-
-    @lat_delta = @ZoomDelta[@zoom][:lat]
-    @long_delta = @ZoomDelta[@zoom][:long]
-    @lat_low = @lat - @lat_delta
-    @lat_high = @lat + @lat_delta
-    @long_low = @long - @long_delta
-    @long_high = @long + @long_delta
-
-    @events.select! do |event| 
-      ((event.venue.latitude >= @lat_low) && (event.venue.latitude <= @lat_high) && (event.venue.longitude >= @long_low) && (event.venue.longitude <= @long_high))
-    end
-
-    @events.sort_by do |event| 
-      event.score
-    end.reverse
-    
-    puts "heree................."
-
-    @events.each do |event| 
-      event.views += 1 
-      event.venue.views += 1
-      event.save
-      event.venue.save
-    end
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @events }
-    end
-  end
-
-  def fromRaw
-    #before_filter :authenticate_user!
-    authorize! :fromRaw, @user, :message => 'Not authorized as an administrator.'
-    puts params
-
-    if request.post? 
-      puts "\n# POST\n"
-      if(params["venue-type"] == "existing")
-        params[:event].delete("venue_attributes")
-      end
-
-      puts params
-
-      # params[:event]["occurrences_attributes"]["0"]["day_of_week"] = Date.parse(params[:event]["occurrences_attributes"]["0"]["start(1i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(2i)"] + "-" + params[:event]["occurrences_attributes"]["0"]["start(3i)"]).wday
-      @event = Event.new(params[:event])
-      @event.save
-    end
-
-    if params[:delete_id]
-      @dRawEvent = RawEvent.find(params[:delete_id])
-      if @dRawEvent
-        @dRawEvent.deleted = true
-        @dRawEvent.save
-      end
-    end
-
-    #get a random RawEvent from non-submitted/deleted RawEvents
-    @rawEvent = RawEvent.first(:order => "RANDOM()", :conditions => "submitted IS NULL AND deleted IS NULL")
-    @event = Event.new
-    @occurrence = Occurrence.new({
-      :start => @rawEvent.start,
-      :end => @rawEvent.end
-    })
-    @venue = Venue.new({
-      :name => @rawEvent.venue_name,
-      :address => @rawEvent.venue_address,
-      :city => @rawEvent.venue_city,
-      :state => @rawEvent.venue_state,
-      :zip => @rawEvent.venue_zip,
-      :latitude => @rawEvent.latitude,
-      :longitude => @rawEvent.longitude
-    })
-    @venueBlank = Venue.new
-    
-    render :layout => 'venues'
-
-  end
-
-  def find
 
     #amount, offset, lat_min, lon_min, lat_max, lon_max, price, start, end, [tags]
     params[:amount] = params[:amount] || 10
     params[:offset] = params[:offset] || 0
 
     # @events = Event.search params[:search]
-    @events = Event.all
+    @events = Event.all.select { |event| event.occurrences.length > 0 }
 
     if (params[:search] && params[:search] != "")
       @events.select! { |event| event.matches? params[:search] }
@@ -163,9 +57,39 @@ class EventsController < ApplicationController
     end
 
     #filter by location
+    # either lat/long OR (location or nothin')
     if(params[:lat_min] && params[:long_min] && params[:lat_max] && params[:long_max])
-      @events.select! {|e| ((params[:lat_min].to_f)..(params[:lat_max].to_f)).include?(e.venue.latitude) && ((params[:long_min].to_f)..(params[:long_max].to_f)).include?(e.venue.longitude) }
+      @lat_min = params[:lat_min]
+      @lat_max = params[:lat_max]
+      @long_min = params[:long_min]
+      @long_max = params[:long_max]
+    else
+      @ZoomDelta = {
+               11 => { :lat => 0.30250564 / 2, :long => 0.20942688 / 2 }, 
+               13 => { :lat => 0.0756264644 / 2, :long => 0.05235672 / 2 }, 
+               14 => {:lat => 0.037808182 / 2, :long => 0.02617836 / 2 }
+              }
+
+      @lat = 30.25
+      @long = -97.75
+      @zoom = 11
+
+      if params[:location] && params[:location] != ""
+        json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
+        @lat = json_object["results"][0]["geometry"]["location"]["lat"]
+        @long = json_object["results"][0]["geometry"]["location"]["lng"]
+        @zoom = 14
+      end
+
+      @lat_delta = @ZoomDelta[@zoom][:lat]
+      @long_delta = @ZoomDelta[@zoom][:long]
+      @lat_min = @lat - @lat_delta
+      @lat_max = @lat + @lat_delta
+      @long_min = @long - @long_delta
+      @long_max = @long + @long_delta
     end
+    
+    @events.select! {|e| ((@lat_min.to_f)..(@lat_max.to_f)).include?(e.venue.latitude) && ((@long_min.to_f)..(@long_max.to_f)).include?(e.venue.longitude) }
     
     # filter by tags
     if(params[:tags])
@@ -190,6 +114,10 @@ class EventsController < ApplicationController
       end
     end
 
+    @events.sort_by do |event| 
+      event.score
+    end.reverse
+
     @events.each do |event| 
       event.views += 1 
       event.venue.views += 1
@@ -201,6 +129,7 @@ class EventsController < ApplicationController
       format.html # index.html.erb
       format.json { render json: @events.to_json(:include => [:occurrences, :venue]) }
     end
+
   end
 
   # GET /events/1

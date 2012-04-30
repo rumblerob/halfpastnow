@@ -281,13 +281,9 @@ function pullEvents() {
     query += "&tags=" + filter.tags.reduce(function(a,b) { return a + "," + b; },"").substring(1);
   if(filter.offset)
     query += "&offset=" + filter.offset;
-  
-  if(query != "")
-    query = query.substring(1);
 
-  $.getJSON("/events/find?" + query, function (events) {
-    console.log("http://localhost:3000/events/find?" + query);
-    console.log(events);
+  loading('show');
+  $.getJSON("/events/index?format=json" + query, function (events) {
     var locations = [];
     for(var i in events) {
       var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
@@ -301,7 +297,6 @@ function pullEvents() {
       li.find(".one .venue").html(events[i].venue.name);
       li.find(".one .venue").attr("href",events[i].venue_id);
       li.find(".one .description").html(events[i].description);
-      console.log(events[i].occurrences[0]);
       li.prependTo('#content .main .inner .events-seed');
 
       locations.push({lat: events[i].venue.latitude, long: events[i].venue.longitude});
@@ -314,7 +309,28 @@ function pullEvents() {
     $('#content .main .inner .events-seed li:not(:last-child)').each(function() {
       $(this).prependTo('#content .main .inner .events');
     });
+    loading('hide');
   });
+}
+
+function loading(command) {
+  if (command === 'show') {
+    var top = $('.main .inner .events').scrollTop();
+    console.log("top: " + top);
+    var bottom = $('.main .inner .events').height() - Math.max(0,$('.main .inner .events').height() + $('.main .inner .events').offset().top - $(window).height() - $(window).scrollTop());
+    console.log("bottom: " + bottom);
+    var y = (top + bottom) / 2 - 33;
+    var x = $('.main .inner .events').width() / 2 - 33;
+    $('.main .inner .header, .main .inner .events').css('opacity','.5');
+    if(y > 0) {
+      $('#loading').css('top', y + 'px');
+      $('#loading').css('left', x + 'px');
+      $('#loading').show();
+    }
+  } else if (command === 'hide') {
+    $('.main .inner .header, .main .inner .events').css('opacity','1');
+    $('#loading').hide();
+  }
 }
 
 function toggleSelection() {
@@ -383,7 +399,6 @@ function modal(thing) {
       start = new Date(event.occurrences[0].start);
       $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
       $('.mode.event .time.two').html(start.toString("h:mmtt"));
-      console.log(event.price);
       $('.mode.event h1').html(event.title);
       $('.mode.event .venue a').html(event.venue.name);
       $('.mode.event .venue a').attr("href", event.venue.id);
