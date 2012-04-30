@@ -5,6 +5,8 @@
 
 
 
+
+
 @font-face
 {
   font-family: UbuntuMonoBold;
@@ -353,7 +355,6 @@ input::-webkit-input-placeholder
 }
 #content .sidebar .inner .filter.tags INPUT
 {
-  width: 317px;
   margin:0;
 }
 #content .sidebar .inner .filter .tag-library
@@ -468,7 +469,30 @@ input::-webkit-input-placeholder
   padding: 8px 16px;
   color: white;
   box-shadow: 3px 2px 8px #666666;
+  overflow:hidden;
 } 
+#content .main .inner .header .info
+{
+  float:left;
+}
+#content .main .inner .header .sort
+{
+  float:right;
+  font-weight:normal;
+}
+#content .main .inner .header .sort SPAN
+{
+  font-weight:bold;
+  cursor:pointer;
+
+}
+#content .main .inner .header .sort SPAN.selected
+{
+  font-weight:bold;
+  text-decoration:none;
+  cursor:default;
+  color: #C5C5D9;
+}
 #content .main .inner .header .location
 {
   color: #EAEAF6;

@@ -76,9 +76,15 @@ class EventsController < ApplicationController
 
       if params[:location] && params[:location] != ""
         json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
-        @lat = json_object["results"][0]["geometry"]["location"]["lat"]
-        @long = json_object["results"][0]["geometry"]["location"]["lng"]
-        @zoom = 14
+        unless (json_object.nil? || json_object["results"].length == 0)
+
+          @lat = json_object["results"][0]["geometry"]["location"]["lat"]
+          @long = json_object["results"][0]["geometry"]["location"]["lng"]
+          # if the results are of a city, keep it zoomed out aways
+          if (json_object["results"][0]["address_components"][0]["types"].index("locality").nil?)
+            @zoom = 14
+          end
+        end
       end
 
       @lat_delta = @ZoomDelta[@zoom][:lat]

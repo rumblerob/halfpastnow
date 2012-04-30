@@ -173,7 +173,11 @@
 		<div id="map"></div>
     	<div class="main">
 			<div class="inner">
-				<div class="header"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> nearby<!--around <span class="location">Austin</span>--></div>
+				<div class="header">
+					<div class="info"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> nearby</div>
+					<div class="sort">sort by <span class="selected">popularity</span> | <span>date</span>
+					</div>
+				</div>
 				<ul class="events">
 					<% 	@events.each_with_index do |event, index| 
 							eventListElement(event, index) 
