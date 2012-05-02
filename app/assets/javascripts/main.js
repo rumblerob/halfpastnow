@@ -423,18 +423,11 @@ function modal(thing) {
     });
   } else {
     $.getJSON('/venues/show/' + thing.id + '.json', function(venueInfo) {
-      venue = venueInfo.venue;
-      recurrences = venueInfo.recurrences;
-      occurrences = venueInfo.occurrences;
+      venue = $.parseJSON(venueInfo.venue);
+      recurrences = $.parseJSON(venueInfo.recurrences);
+      occurrences = $.parseJSON(venueInfo.occurrences);
       var week = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] ;
       
-      var index1 = 1;
-      var index2 = 1;
-      var message;
-      var message2;
-      var message3;
-      var message4;
-      var message5="";
       var li;
       $('.venue.mode .overlay .window .inner .menu .selected .events').empty();
       
@@ -445,59 +438,55 @@ function modal(thing) {
       $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
         $(this).remove();
       });
-
+      console.log(recurrences);
       // For recurrences
-      for (var i in recurrences){
-        var event = recurrences[i].event;
-        var timing = recurrences[i].timing;
-
-        for (var j in timing){
-        message = "every " + ((timing[j].every_other == 0) ? "" : ((timing[j].every_other == 1) ? "other" : to_ordinal(timing[j].every_other)));
-        message2 =(timing[j].day_of_week != null && timing[j].week_of_month != null) ? to_ordinal(timing[j].week_of_month) + " " + week[timing[j].day_of_week] :( (timing[j].day_of_month !=null) ? to_ordinal(timing[j].day_of_month) : ((timing[j].day_of_week!=null) ? week[timing[j].day_of_week] : "day"));
-        var startTime = Date.parse(timing[j].start.substr(0,19));
-        var endTime = Date.parse(timing[j].end.substr(0,19));
-        message3 = " from "+ (startTime).toString("hh:mmtt");
-        message4 = " end "+  (endTime).toString("hh:mmtt");
-        if(j!=0) message5 +=" and " + message + message2 + message3 + message4;
-        else message5 = message + message2 + message3 + message4;
-        } 
-       
-        li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:last-child').clone().wrap('<ul>').parent().html());
-        li.find(".mod").html(message5);
-        li.find(".name").attr("href", event.id);
-        li.find(".name").html(event.title);
-        li.find(".one .description").html(event.description);
-        li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed1');
-        li.find(".index").html(index1++);
-
-      }
-      $('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:not(:first-child)').each(function() {
-        $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
-      });
+      if(recurrences.length > 0) {
+        for (var i in recurrences) {
+          var event = recurrences[i].event;
+          var startTime = Date.parse(recurrences[i].start.substr(0,19));
+          
+          var mod = "every " + ((recurrences[i].every_other == 0) ? "" : ((recurrences[i].every_other == 1) ? "other" : to_ordinal(recurrences[i].every_other)));
+          var day = (recurrences[i].day_of_week != null && recurrences[i].week_of_month != null) ? to_ordinal(recurrences[i].week_of_month) + " " + week[recurrences[i].day_of_week] :( (recurrences[i].day_of_month !=null) ? to_ordinal(recurrences[i].day_of_month) : ((recurrences[i].day_of_week!=null) ? week[recurrences[i].day_of_week] : "day"));
+          var time = " from "+ (startTime).toString("hh:mmtt");
+          
+          li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:last-child').clone().wrap('<ul>').parent().html());
+          li.find(".mod").html(mod);
+          li.find(".day").html(day);
+          li.find(".time").html(time);
+          li.find(".name").attr("href", event.id);
+          li.find(".name").html(event.title);
+          li.find(".one .description").html(event.description);
+          li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed1');
+        }
       
+        $('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:not(:first-child)').each(function() {
+          $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
+        });
+      }
+
       // For occurrences
-      for (var i in occurrences){
-        var event = occurrences[i].event;
-        var timing = occurrences[i].timing[0];
-        var start = Date.parse(timing.start.substr(0,19));
-        var dateString = start.toString("MMM d").toUpperCase();
-        if (dateString.length > 5)
-          dateString = dateString.replace(/ /g,'');
-        li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:last-child').clone().wrap('<ul>').parent().html());
-        li.find(".mod").html(dateString);
-        li.find(".day").html(day_of_week[timing.day_of_week]);
-        li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
-        li.find(".name").attr("href", event.id);
-        li.find(".name").html(event.title);
-        li.find(".one .description").html(event.description);
-        li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed2');
-        li.find(".index").html(index2++);
+      if(occurrences.length > 0) {
+        for (var i in occurrences){
+          var event = occurrences[i].event;
+          var startTime = Date.parse(occurrences[i].start.substr(0,19));
+          var dateString = startTime.toString("MMM d").toUpperCase();
+          if (dateString.length > 5)
+            dateString = dateString.replace(/ /g,'');
+          
+          li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:last-child').clone().wrap('<ul>').parent().html());
+          li.find(".mod").html(dateString);
+          li.find(".day").html(day_of_week[occurrences[i].day_of_week]);
+          li.find(".time").html(startTime.toString("hh:mmtt").toLowerCase());
+          li.find(".name").attr("href", event.id);
+          li.find(".name").html(event.title);
+          li.find(".one .description").html(event.description);
+          li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed2');
+        }
+        
+        $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
+          $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
+        });
       }
-      
-      $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
-        $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
-      });
-
 
       $('.mode.venue h1').html(venue.name);
       $('.mode.venue .address.one').html(venue.address);
