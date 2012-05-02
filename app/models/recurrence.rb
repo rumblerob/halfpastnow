@@ -8,6 +8,7 @@ end
 
 class Recurrence < ActiveRecord::Base
   has_many :occurrences, :dependent => :destroy
+  belongs_to :event
 
   def create
     puts "generating occurrences (create)"

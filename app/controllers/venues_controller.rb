@@ -24,20 +24,24 @@ class VenuesController < ApplicationController
     puts  params[:id]
     @venue.clicks += 1
     @venue.save
-    @occ  = []
-    @recc = []
-    @eventsVenue = @venue.events
-    @eventsVenue.each do |event|
-    @occurrence =  Occurrence.find_by_event_id(event.id)
-    if @occurrence.recurrence_id==nil then puts @occ <<  {:timing =>Occurrence.find_all_by_event_id(event.id),:event=>event}#@occurrence
-      else puts  @recc << {:timing =>Recurrence.find_all_by_event_id(event.id),:event=>event} # Recurrence.find_by_event_id(event.id)
+    @jsonOccs  = []
+    @jsonRecs = []
+    @occurrences = @venue.events.collect { |event| event.occurrences.select { |occ| occ.start >= DateTime.now }  }.flatten.sort_by { |occ| occ.start }
+    @occurrences.each do |occ|
+      # check if occurrence is instance of a recurrence
+      if occ.recurrence_id.nil?
+        @jsonOccs << occ
+      else
+        if @jsonRecs.index(occ.recurrence).nil?
+          @jsonRecs << occ.recurrence
+        end
+      end
     end
-    end
-    my_json = {:venue => @venue,:occurrences => @occ,:recurrences=>@recc}
+    puts "jsonrecs:"
+    pp @jsonRecs
+
     respond_to do |format|
-      format.html # show.html.erb
-      #format.json { render json: @venue.to_json(:include => { :events => { :include => [:occurrences,:recurrences] }} ) }
-      format.json { render json: my_json.to_json} 
+      format.json { render json: { :occurrences => @jsonOccs.to_json(:include => :event), :recurrences => @jsonRecs.to_json(:include => :event), :venue => @venue.to_json } } 
     end
   end
 

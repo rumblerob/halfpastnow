@@ -713,6 +713,14 @@ html,body {
   
 }
 
+#content .main .inner .events li .price {
+font-size: 12px;
+margin-top: 4px;
+color: #2E2EFE;
+height: 20px;
+overflow: hidden;
+}
+
 .mode .window .time.one {
   font-size: 18px;
 }

@@ -9,8 +9,9 @@
 	var markers = [];
 	var tags = [];
 
+	console.log("hereer 1");
 	function initialize() {
-
+		console.log("hereer 2");
 		//$("#map").height($(window).height() - $("#map").offset().top - 2 * parseInt($("#map").css("border-top-width")));
 		geocoder = new google.maps.Geocoder();
 		var latlng = new google.maps.LatLng(<%= @lat %>, <%= @long %>);
@@ -87,7 +88,10 @@
 		<div class="one">
 			<span href="<%= event ? event.id : "" %>" linkto="event" class="linkto name"><%= event ? event.title : "" %></span>
 			<a class="venue linkto" linkto="venue" href="<%= event ? event.venue.id : "" %>"><%= event ? event.venue.name : "" %></a>
-			<div class="description"><%= event ? (event.price!=nil)? ((event.price.to_f!=0.0) ? "Price: "+ number_to_currency(event.price,:unit=>"$").to_s+" " : "Free"): ""+truncate(strip_tags(event.description), :length => 300) : "" %></div>
+			<!--div class="price"><%= event ? "<strong>Price: $</strong> <span>"+event.price.to_s+"</span>" : "" %></div-->
+			<!--div class="price"><%= event ? event.price : "" %></div-->
+			<div class="price"><strong>Price: $</strong><%= event ? event.price : "Free" %></div>
+			<div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
 		</div>
 		<div style="display:none;">
 			<div class="latitude"><%= event ? event.venue.latitude : "" %></div>

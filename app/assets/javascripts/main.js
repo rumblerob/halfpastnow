@@ -296,6 +296,12 @@ function pullEvents() {
       li.find(".one .name").html(events[i].title);
       li.find(".one .venue").html(events[i].venue.name);
       li.find(".one .venue").attr("href",events[i].venue_id);
+      //$('.mode .window .price').html(events[i].price ? "<strong>Price: </strong> <span>$" + parseFloat(events[i].price).toFixed(2) + "</span>" : "");
+      //if(events[i].price) li.find(".one .price").html(<strong>Price: </strong> <span>$" + parseFloat(9).toFixed(2) + "</span>");
+      //if(events[i].price!=null) li.find(".one .price").html("<strong>Price: </strong>  <span>$" + parseFloat(9).toFixed(2) + "</span>");
+      //else li.find(".one .price").html("");
+      //li.find(".one .price").html(900);
+      //li.find(".one .price").html("test");
       li.find(".one .description").html(events[i].description);
       li.prependTo('#content .main .inner .events-seed');
 

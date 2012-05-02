@@ -24,7 +24,7 @@ end
 class EventsController < ApplicationController
 
 
-  def index
+def index
 
     #amount, offset, lat_min, lon_min, lat_max, lon_max, price, start, end, [tags]
     params[:amount] = params[:amount] || 10
@@ -208,4 +208,5 @@ class EventsController < ApplicationController
       format.json { head :ok }
     end
   end
+  
 end
