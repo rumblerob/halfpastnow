@@ -7,6 +7,7 @@
 
 
 
+
 @font-face
 {
   font-family: UbuntuMonoBold;
@@ -506,17 +507,29 @@ input::-webkit-input-placeholder
   padding: 5px 0 5px 5px;
   box-shadow: 3px 2px 8px #666666;
 }
+
+.venue.mode .events LI {
+  overflow:hidden;
+  margin:10px 0 0 0;
+}
+
 #content .main .inner .events-seed
 {
   display: none;
 }
 
-#content .main .inner .events LI .one
+.events LI .one
 {
   margin-left: 101px;
   margin-right: 26px;
 }
-#content .main .inner .events LI .name
+
+.venue.mode LI .one {
+  margin-left:70px;
+  margin-right:0;
+}
+
+.events LI .name
 {
   font-size: 18px;
   font-weight: bold;
@@ -526,22 +539,19 @@ input::-webkit-input-placeholder
 }
 
 
-#content .main .inner .events LI .venue:before
+.events LI .venue:before
 {
   content: "  at ";
   font-style: italic;
 }
-#content .main .inner .events LI .venue:hover, #content .main .inner .events LI .name:hover
-{
-  text-decoration: underline;
-}
-#content .main .inner .events LI .venue
+
+.events LI .venue
 {
   color:#000000;
   text-decoration:none;
 }
 
-#content .main .inner .events LI .description
+.events LI .description
 {
   font-size: 12px;
   margin-top: 4px;
@@ -550,7 +560,7 @@ input::-webkit-input-placeholder
   overflow: hidden;
 }
 
-#content .main .inner .events LI .index
+.events LI .index
 {
   float: left;
   margin-right: 5px;
@@ -568,7 +578,7 @@ input::-webkit-input-placeholder
 }
 
 
-#content .main .inner .events LI .endex {
+.events LI .endex {
   float: right;
   width: 6px;
   height: 60px;
@@ -576,6 +586,10 @@ input::-webkit-input-placeholder
   position: relative;
 }
 
+#content .main .inner .events LI .venue:hover, #content .main .inner .events LI .name:hover
+{
+  text-decoration: underline;
+}
 
 #content .main .inner .events LI:hover, #content .main .inner .events LI.hover
 {
@@ -600,10 +614,10 @@ input::-webkit-input-placeholder
   color: #906890;
 }
 
-#content .main .inner .events LI .when
+.events LI .when
 {
   position: relative;
-  text-align: center;
+  text-align: left;
   border-radius: 0;
   background-color: #49499E;
   color: #FFFFFF;
@@ -614,30 +628,34 @@ input::-webkit-input-placeholder
 }
 
 
-#content .main .inner .events LI .when .mod
+.events LI .when .mod
 {
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 4px;
+  left: 6px;
   width: 60px;
-  font-size: 14px;
-  letter-spacing: 3px;
+  font-size: 18px;
+  letter-spacing: 1px;
 }
-#content .main .inner .events LI .when .day
+
+.events LI .when .day
 {
   position: absolute;
-  top: 30px;
+  top: 32px;
   width: 60px;
-  font-size: 35px;
+  font-size: 28px;
     line-height: 0;
+  letter-spacing: 4px;
+  left: 5px;
 }
-#content .main .inner .events LI .when .time
+.events LI .when .time
 {
   position: absolute;
   top: 42px;
   width: 60px;
   font-size: 15px;
   font-variant: small-caps;
+  left: 4px;
 }
 
 html,body {
@@ -744,21 +762,21 @@ html,body {
 .mode .window .time.two {
   font-size: 16px;
 }
-
+/*
 .mode .window .venue {
   font-size: 16px;
-}
+}*/
 
 .mode .window .menu {
   clear:both; 
 }
 
-.mode .window .menu ul {
+.mode .window .menu .tabs ul {
   overflow:hidden;
   padding-top:10px;
 }
 
-.mode .window .menu li {
+.mode .window .menu .tabs li {
   list-style:none;
   float:left;
   padding:5px 10px;
@@ -767,17 +785,16 @@ html,body {
   cursor:pointer;
 }
 
-.mode .window .menu li.selected {
-  float:left;
+.mode .window .menu .tabs li.selected {
   color:#FFFFFF;
   background:#996699;
 }
 
-.mode .window .menu div {
-  clear: both; padding: 6px 0 20px; line-height: 23px; font-size: 14px; display:none;
+.mode .window .menu > div {
+  clear: both; padding: 6px 0 20px; display:none;
 }
 
-.mode .window .menu div.selected {
+.mode .window .menu > div.selected {
   display:block;
 }
 

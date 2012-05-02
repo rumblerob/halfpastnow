@@ -17,12 +17,14 @@ class ZoomDelta
   MediumLongitude = 0.05235672 / 2
   LowLatitude = 0.30250564 / 2
   LowLongitude = 0.20942688 / 2
-
-
 end
 
-class EventsController < ApplicationController
+def empty? thing
+  return (thing.nil? || thing == "")
+end
 
+
+class EventsController < ApplicationController
 
   def index
 
@@ -37,10 +39,11 @@ class EventsController < ApplicationController
       @events.select! { |event| event.matches? params[:search] }
     end
 
+    # TODO: cache earliest occurrence for each event so we don't have to do this
     # find occurrences that start between params[:start] and params[:end] and are on params[:day] day of the week 
-    if(params[:start] || params[:end] || params[:day])
+    #if(params[:start] || params[:end] || params[:day])
 
-      event_start = Time.at(params[:start] ? params[:start].to_i : 0).to_datetime.to_s
+      event_start = (params[:start] ? Time.at(params[:start]).to_datetime.to_s : DateTime.now.to_s)
       event_end = Time.at(params[:end] ? params[:end].to_i : 32513174400).to_datetime.to_s
 
       event_days = params[:day] ? params[:day].split(",") : nil
@@ -51,10 +54,11 @@ class EventsController < ApplicationController
         @occurrences = Occurrence.where("start >= ? AND start <= ?", event_start, event_end)
       end
 
+      @occurrences.sort_by! { |o| o.start }
       # puts @occurrences
       # get events of those occurrences
-      @events = @events & @occurrences.collect{ |o| o.event }
-    end
+      @events = @occurrences.collect{ |o| o.event } & @events
+    #end
 
     #filter by location
     # either lat/long OR (location or nothin')
@@ -120,9 +124,11 @@ class EventsController < ApplicationController
       end
     end
 
-    @events.sort_by do |event| 
-      event.score
-    end.reverse
+    if(empty?(params[:sort]) || params[:sort] == 0)
+      @events = @events.sort_by do |event| 
+        event.score
+      end.reverse
+    end
 
     @events.each do |event| 
       event.views += 1 
