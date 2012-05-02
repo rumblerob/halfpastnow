@@ -17,12 +17,14 @@ class ZoomDelta
   MediumLongitude = 0.05235672 / 2
   LowLatitude = 0.30250564 / 2
   LowLongitude = 0.20942688 / 2
-
-
 end
 
-class EventsController < ApplicationController
+def empty? thing
+  return (thing.nil? || thing == "")
+end
 
+
+class EventsController < ApplicationController
 
 def index
 
@@ -37,10 +39,11 @@ def index
       @events.select! { |event| event.matches? params[:search] }
     end
 
+    # TODO: cache earliest occurrence for each event so we don't have to do this
     # find occurrences that start between params[:start] and params[:end] and are on params[:day] day of the week 
-    if(params[:start] || params[:end] || params[:day])
+    #if(params[:start] || params[:end] || params[:day])
 
-      event_start = Time.at(params[:start] ? params[:start].to_i : 0).to_datetime.to_s
+      event_start = (params[:start] ? Time.at(params[:start]).to_datetime.to_s : DateTime.now.to_s)
       event_end = Time.at(params[:end] ? params[:end].to_i : 32513174400).to_datetime.to_s
 
       event_days = params[:day] ? params[:day].split(",") : nil
@@ -51,10 +54,11 @@ def index
         @occurrences = Occurrence.where("start >= ? AND start <= ?", event_start, event_end)
       end
 
+      @occurrences.sort_by! { |o| o.start }
       # puts @occurrences
       # get events of those occurrences
-      @events = @events & @occurrences.collect{ |o| o.event }
-    end
+      @events = @occurrences.collect{ |o| o.event } & @events
+    #end
 
     #filter by location
     # either lat/long OR (location or nothin')
@@ -76,9 +80,15 @@ def index
 
       if params[:location] && params[:location] != ""
         json_object = JSON.parse(open("http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" + URI::encode(params[:location])).read)
-        @lat = json_object["results"][0]["geometry"]["location"]["lat"]
-        @long = json_object["results"][0]["geometry"]["location"]["lng"]
-        @zoom = 14
+        unless (json_object.nil? || json_object["results"].length == 0)
+
+          @lat = json_object["results"][0]["geometry"]["location"]["lat"]
+          @long = json_object["results"][0]["geometry"]["location"]["lng"]
+          # if the results are of a city, keep it zoomed out aways
+          if (json_object["results"][0]["address_components"][0]["types"].index("locality").nil?)
+            @zoom = 14
+          end
+        end
       end
 
       @lat_delta = @ZoomDelta[@zoom][:lat]
@@ -114,9 +124,11 @@ def index
       end
     end
 
-    @events.sort_by do |event| 
-      event.score
-    end.reverse
+    if(empty?(params[:sort]) || params[:sort] == 0)
+      @events = @events.sort_by do |event| 
+        event.score
+      end.reverse
+    end
 
     @events.each do |event| 
       event.views += 1 

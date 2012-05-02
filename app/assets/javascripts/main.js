@@ -43,19 +43,16 @@ $(function() {
 
     $(this).parent().parent().find('.custom-select').removeClass('selected');
     $(this).parent().parent().find('.custom-select:nth-child(' + ($(this).index() + 1) +  ')').addClass('selected');
-
-    if($(this).hasClass('custom-radio'))
-      $(this).siblings('.custom-select').show();
-    else
-      $(this).siblings('.custom-select').hide();
   });
 
   $('#content .sidebar .inner .filter.price span').click(toggleSelection);
   $('#content .sidebar .inner .filter.day span').click(toggleSelection);
+  $('#content .main .inner .header .sort span').click(radioSelection);  
 
   $('#content .sidebar .inner .filter.price span').click(filterChange);
   $('#content .sidebar .inner .filter.day span').click(filterChange);
   $('#content .sidebar .inner .filter.date .filters span').click(filterChange);
+  $('#content .main .inner .header .sort span').click(filterChange);  
 
   $('#content .sidebar .inner .filter.date .date ').datetimepicker({
     ampm: true,
@@ -76,7 +73,7 @@ $(function() {
   
   $(".mode .window .menu li").click(function() {
     var index = $(this).index();
-    $(this).parent().children("li").removeClass("selected");
+    $(this).siblings().removeClass("selected");
     $(this).addClass("selected");
     $(this).parent().parent().children("div").removeClass("selected");
     $(this).parent().parent().children("div").eq(index).addClass("selected");
@@ -97,7 +94,7 @@ $(function() {
   $(window).resize(lockMap);
 
   // oh god what a grody hack. TODO: find out why this happens and fixitfixitfixit
-  $('#content .main .inner .events').on("click", ".linkto", loadModal);
+  $('#content .main .inner .events, .venue.mode .events').on("click", ".linkto", loadModal);
   $(".window .linkto").click(loadModal);
 
   mapOffset = $("#map").offset().top;
@@ -131,7 +128,8 @@ var filter = {
   longMin: null,
   longMax: null,
   offset: 0,
-  search: null
+  search: null,
+  sort: 0
 };
 
 var boundsChangedFlag = false;
@@ -228,7 +226,6 @@ function updateFilter() {
     filter.tags.push(selectedTags[i].id);
   }
 
-
   switch ($(".filter.date .filters .selected").index()) {
     case 0:
       filter.start = Date.today().add({hours:$(".today.time-range").slider("values",0)});
@@ -253,6 +250,8 @@ function updateFilter() {
   $('#content .sidebar .inner .filter.price span.selected').each(function () {
     filter.price.push($(this).index());
   });
+
+  filter.sort = $("#content .main .inner .header .sort span.selected").index();
 }
 
 // this gets called on infinite scroll and on filter changes
@@ -281,6 +280,8 @@ function pullEvents() {
     query += "&tags=" + filter.tags.reduce(function(a,b) { return a + "," + b; },"").substring(1);
   if(filter.offset)
     query += "&offset=" + filter.offset;
+  if(filter.sort)
+    query += "&sort=" + filter.sort;
 
   loading('show');
   $.getJSON("/events/index?format=json" + query, function (events) {
@@ -350,7 +351,10 @@ function toggleSelection() {
   }
 }
 
-
+function radioSelection() {
+  $(this).siblings('span').removeClass('selected');
+  $(this).addClass('selected');
+}
 
 function lockMap() {
   if($("#body").scrollTop() >= mapOffset) {
@@ -460,7 +464,7 @@ function modal(thing) {
        
         li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:last-child').clone().wrap('<ul>').parent().html());
         li.find(".mod").html(message5);
-        li.find(".name").attr("href", "http://localhost:3000/?event_id="+event.id);
+        li.find(".name").attr("href", event.id);
         li.find(".name").html(event.title);
         li.find(".one .description").html(event.description);
         li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed1');
@@ -476,16 +480,20 @@ function modal(thing) {
         var event = occurrences[i].event;
         var timing = occurrences[i].timing[0];
         var start = Date.parse(timing.start.substr(0,19));
+        var dateString = start.toString("MMM d").toUpperCase();
+        if (dateString.length > 5)
+          dateString = dateString.replace(/ /g,'');
         li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:last-child').clone().wrap('<ul>').parent().html());
-        li.find(".mod").html(start.toString("MM/dd"));
+        li.find(".mod").html(dateString);
         li.find(".day").html(day_of_week[timing.day_of_week]);
         li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
-        li.find(".name").attr("href", "http://localhost:3000/?event_id="+event.id);
+        li.find(".name").attr("href", event.id);
         li.find(".name").html(event.title);
         li.find(".one .description").html(event.description);
         li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed2');
         li.find(".index").html(index2++);
       }
+      
       $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
         $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
       });

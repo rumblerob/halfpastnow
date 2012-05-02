@@ -75,7 +75,7 @@
 		<div class="when sun">
 			<div class="mod">
 				<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
-				<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
+				<%= event ? event.occurrences.first.start.to_time.strftime("%^b%e") : "" %>
 			</div>
 			<div class="day">
 				<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
@@ -99,39 +99,35 @@
 %>
 
 <%
-	def eventListElement2 (event, index)
+	def venueEventListElement (event, index)
 
 %>
 	<li>
-		<div class="venue mode index">
-			<%= index ? (index + 1) : "" %>
-		</div>
-		
-		<div class="venue mode when sun">
-			<div class="venue mode mod">
+		<div class="when sun">
+			<div class="mod">
 				<%# (event.date < now) ? event.date.strftime("%m/%e") : (event.date < (now + 7)) ? 'THIS' : (event.date < (now + 14)) ? 'NEXT' : event.date.strftime("%-m/%e") %>
 				<%= event ? event.occurrences.first.start.to_time.strftime("%m/%d") : "" %>
 			</div>
-			<div class="venue mode day">
+			<div class="day">
 				<%= event ? @day_of_week[event.occurrences.first.start.wday] : "" %>
 			</div>
-			<div class="venue mode time">
+			<div class="time">
 				<%= event ? event.occurrences.first.start.to_time.strftime("%I:%M%P") : "" %>
 			</div>
 		</div>
-		<div class="venue mode one">
+		<div class="one">
 			
 			<!--div class="venue mode event"><a linkto="event" href=""  class="linkto"></a></div>
 			<!--span href="<%= event ? event.id : "" %>" linkto="event" class="linkto name"><%= event ? event.title : "" %></span-->
-			<a href="" linkto="event" class="linkto name"><%= event ? event.title : "" %></a>
+			<span href="" linkto="event" class="linkto name"><%= event ? event.title : "" %></span>
 
 			
-			<div class="venue mode description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
+			<div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
 			
 		</div>
 		<div style="display:none;">
-			<div class="latitude2"><%= event ? event.venue.latitude : "" %></div>
-			<div class="longitude2"><%= event ? event.venue.longitude : "" %></div>
+			<div class="latitude"><%= event ? event.venue.latitude : "" %></div>
+			<div class="longitude"><%= event ? event.venue.longitude : "" %></div>
 		</div>
 	</li>
 <%
@@ -213,7 +209,11 @@
 		<div id="map"></div>
     	<div class="main">
 			<div class="inner">
-				<div class="header"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> nearby<!--around <span class="location">Austin</span>--></div>
+				<div class="header">
+					<div class="info"><span class="count"><%= @events.size %> event<%= @events.size == 1 ? "" : "s" %></span> nearby</div>
+					<div class="sort">sort by <span class="selected">popularity</span> | <span>date</span>
+					</div>
+				</div>
 				<ul class="events">
 					<% 	@events.each_with_index do |event, index| 
 							eventListElement(event, index)
@@ -287,7 +287,7 @@
 				</div>
 				<div class="menu">
 
-					<ul>
+					<ul class="tabs">
 						<li class="selected">events</li>
 						<li>description</li>
 						<!--li>details</li-->
@@ -301,15 +301,13 @@
 							<% eventListElement(nil, nil) %>
 						</ul>
 						<ul class="events-seed1">
-							<% eventListElement2(nil, nil) %>
+							<% venueEventListElement(nil, nil) %>
 						</ul>
 						<ul class="events-seed2">
-							<% eventListElement2(nil, nil) %>
+							<% venueEventListElement(nil, nil) %>
 						</ul>
 					</div>
-					
-
-					<!--div>description</div-->
+					<div>description</div>
 					<!--div>details</div-->
 					<!--div>gallery</div-->
 					<!--div>comments</div-->
