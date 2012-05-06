@@ -43,7 +43,7 @@ def index
     # find occurrences that start between params[:start] and params[:end] and are on params[:day] day of the week 
     #if(params[:start] || params[:end] || params[:day])
 
-      event_start = (params[:start] ? Time.at(params[:start]).to_datetime.to_s : DateTime.now.to_s)
+      event_start = (params[:start] ? Time.at(params[:start].to_i).to_datetime.to_s : DateTime.now.to_s)
       event_end = Time.at(params[:end] ? params[:end].to_i : 32513174400).to_datetime.to_s
 
       event_days = params[:day] ? params[:day].split(",") : nil
