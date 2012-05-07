@@ -87,7 +87,8 @@
 		<div class="one">
 			<span href="<%= event ? event.id : "" %>" linkto="event" class="linkto name"><%= event ? event.title : "" %></span>
 			<a class="venue linkto" linkto="venue" href="<%= event ? event.venue.id : "" %>"><%= event ? event.venue.name : "" %></a>
-			<div class="description"><%= event ? (event.price!=nil)? ((event.price.to_f!=0.0) ? "Price: "+ number_to_currency(event.price,:unit=>"$").to_s+" " : "Free"): ""+truncate(strip_tags(event.description), :length => 300) : "" %></div>
+			
+			<div class="description"><span="price";  style="color:#2E2EFE"><strong><%= event ? (event.price!=nil)? ((event.price.to_f!=0.0) ? "Price: "+ number_to_currency(event.price,:unit=>"$").to_s+" " : "Free ") : "" : "" %></strong></span><span style="color:#888"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></span></div>
 		</div>
 		<div style="display:none;">
 			<div class="latitude"><%= event ? event.venue.latitude : "" %></div>
@@ -121,8 +122,8 @@
 			<!--span href="<%= event ? event.id : "" %>" linkto="event" class="linkto name"><%= event ? event.title : "" %></span-->
 			<span href="" linkto="event" class="linkto name"><%= event ? event.title : "" %></span>
 
-			
-			<div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div>
+			<div class="description"><%= event ? (event.price!=nil)? ((event.price.to_f!=0.0) ? "Price: "+ number_to_currency(event.price,:unit=>"$").to_s+" "+truncate(strip_tags(event.description),:length => 300) : "Free "+truncate(strip_tags(event.description),:length => 300)): truncate(strip_tags(event.description),:length => 300)  : "" %></div>
+			<!--div class="description"><%= event ? truncate(strip_tags(event.description), :length => 300) : "" %></div-->
 			
 		</div>
 		<div style="display:none;">
