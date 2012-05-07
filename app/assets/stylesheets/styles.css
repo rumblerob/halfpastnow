@@ -755,7 +755,7 @@ html,body {
   
 }
 
-#content .main .inner .events li .price {
+#content .main .inner .events li .description  SPAN{
 font-size: 12px;
 margin-top: 4px;
 color: #2E2EFE;
