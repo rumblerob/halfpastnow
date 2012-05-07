@@ -1,5 +1,9 @@
 Myapp::Application.routes.draw do
   
+  get "info/about"
+
+  get "info/contact"
+
   devise_for :users
 
   get "tag/index"
@@ -68,6 +72,7 @@ Myapp::Application.routes.draw do
   match 'venues' => 'venues#index'
   match 'events' => 'events#index'
   match 'tags' => 'tags#index'
+  match 'info' => 'info#about'
 
   match ':controller(/:action(/:id(.:format)))'
 end

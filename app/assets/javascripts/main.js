@@ -172,23 +172,18 @@ function placeMarker(lat, long) {
   var marker = new google.maps.Marker({ //MarkerWithLabel({
     map: map,
     position: new google.maps.LatLng(lat,long),
-    icon: "/assets/marker.png",
-    index: (markers.length + 1) //,
-    //labelContent: (markers.length + 1),
-    //labelAnchor: new google.maps.Point(8, 34),
-    //labelClass: "markerLabel" // the CSS class for the label
+    icon: "/assets/markers/marker_" + (i + 1) + ".png",
+    index: i + 1
   });
 
   google.maps.event.addListener(marker, 'mouseover', function() {
-    marker.setIcon("/assets/marker_hover.png");
-    //marker.set("labelStyle", { color: "#FFFFFF" });
+    marker.setIcon("/assets/markers/marker_hover_" + marker.index +  ".png");
     $("#content .main .inner .events LI:nth-child(" + marker.index + ")").addClass("hover");
     markers[i].foo = "bar";
   });
 
   google.maps.event.addListener(marker, 'mouseout', function() {
-    marker.setIcon("/assets/marker.png");
-    //marker.set("labelStyle", {});
+    marker.setIcon("/assets/markers/marker_" + marker.index + ".png");
     $("#content .main .inner .events LI:nth-child(" + marker.index + ")").removeClass("hover");
   });
 
@@ -291,7 +286,7 @@ function pullEvents() {
       var li = $($('#content .main .inner .events-seed li:last-child').clone().wrap('<ul>').parent().html());
       li.find(".name").attr("href", events[i].id);
       li.find(".index").html(parseInt(i) + 1);
-      li.find(".mod").html(start.toString("MM/dd"));
+      li.find(".mod").html(start.toString("MMMdd").toUpperCase());
       li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
       li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
       li.find(".one .name").html(events[i].title);
@@ -442,11 +437,18 @@ function modal(thing) {
           var event = recurrences[i].event;
           var startTime = Date.parse(recurrences[i].start.substr(0,19));
           
-          var mod = "every " + ((recurrences[i].every_other == 0) ? "" : ((recurrences[i].every_other == 1) ? "other" : to_ordinal(recurrences[i].every_other)));
-          var day = (recurrences[i].day_of_week != null && recurrences[i].week_of_month != null) ? to_ordinal(recurrences[i].week_of_month) + " " + week[recurrences[i].day_of_week] :( (recurrences[i].day_of_month !=null) ? to_ordinal(recurrences[i].day_of_month) : ((recurrences[i].day_of_week!=null) ? week[recurrences[i].day_of_week] : "day"));
-          var time = " from "+ (startTime).toString("hh:mmtt");
+          var mod = "EVERY " + ((recurrences[i].every_other == 0) ? "" : ((recurrences[i].every_other == 1) ? "OTHER" : to_ordinal(recurrences[i].every_other)));
+          var day = (recurrences[i].day_of_week != null && recurrences[i].week_of_month != null) ? 
+            "<sup>" + to_ordinal(recurrences[i].week_of_month) + "</sup> " + day_of_week[recurrences[i].day_of_week] :
+            ((recurrences[i].day_of_month != null) ? 
+              "<sup class='day-of-month'>" + to_ordinal(recurrences[i].day_of_month) + "</sup>" :
+              ((recurrences[i].day_of_week != null) ? 
+                day_of_week[recurrences[i].day_of_week] : 
+                "DAY"));
+          var time = startTime.toString("hh:mmtt").toLowerCase();
           
           li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:last-child').clone().wrap('<ul>').parent().html());
+          li.addClass("recurrence");
           li.find(".mod").html(mod);
           li.find(".day").html(day);
           li.find(".time").html(time);
@@ -466,9 +468,7 @@ function modal(thing) {
         for (var i in occurrences){
           var event = occurrences[i].event;
           var startTime = Date.parse(occurrences[i].start.substr(0,19));
-          var dateString = startTime.toString("MMM d").toUpperCase();
-          if (dateString.length > 5)
-            dateString = dateString.replace(/ /g,'');
+          var dateString = startTime.toString("MMMdd").toUpperCase();
           
           li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:last-child').clone().wrap('<ul>').parent().html());
           li.find(".mod").html(dateString);
@@ -490,10 +490,10 @@ function modal(thing) {
       $('.mode.venue .address.two').html(venue.city + ", " + venue.state + " " + venue.zip);
       $('.mode.venue .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + venue.latitude  +  "," + venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.venue .map-link').attr("href","http://maps.google.com/maps?q=" + venue.latitude  + "," + venue.longitude);
+      $('.mode.venue .description').html(venue.description);
       if (venue.phonenumber=="") { 
         $('.mode.venue .phone span').html("Not Available");
-      } 
-      else {
+      } else {
         $('.mode.venue .phone span').html(venue.phonenumber);
       }
       //$('.mode.venue .url a').html(venue.name);

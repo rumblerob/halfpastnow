@@ -169,7 +169,7 @@ namespace :api do
 
 				raw_event = RawEvent.create({
 					:title => html_ent.decode(item.elements["title"].text[from..to]),
-				    :description => html_ent.decode(item.elements["description"].text),
+				    # :description => html_ent.decode(item.elements["description"].text),
 				    :start => d_start,
 				    :end => d_end,
 				    :latitude => item.elements["geo:lat"].text,
