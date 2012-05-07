@@ -292,11 +292,15 @@ function pullEvents() {
       li.find(".one .name").html(events[i].title);
       li.find(".one .venue").html(events[i].venue.name);
       li.find(".one .venue").attr("href",events[i].venue_id);
-      if(events[i].price!=null)
-        if(events[i].price!=0)
-          li.find(".one .description").html("<span ><strong>Price:  $" + parseFloat(events[i].price).toFixed(2) + "</strong></span> " + events[i].description);
-        else li.find(".one .description").html("<span ><strong>Free</strong></span> " +events[i].description);
-      else li.find(".one .description").html(events[i].description);
+      if(events[i].price != null) 
+      {
+        if(events[i].price != 0)
+          li.find(".one .description").html("<span ><strong>$" + parseFloat(events[i].price).toFixed(2) + "</strong></span> " + events[i].description);
+        else 
+          li.find(".one .description").html("<span ><strong>FREE</strong></span> " + events[i].description);
+      } else { 
+        li.find(".one .description").html(events[i].description);
+      }
       li.prependTo('#content .main .inner .events-seed');
       locations.push({lat: events[i].venue.latitude, long: events[i].venue.longitude});
     }
