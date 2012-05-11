@@ -154,3 +154,14 @@ select.interval {
 .field .url {
   font-size:14px;
 }
+
+/* Error Messages */
+.field_with_errors {
+  display: inline;
+}
+
+.field_with_errors .message {
+  color: #D00;
+  padding-left: 5px;
+  font-size: 12px;
+}
