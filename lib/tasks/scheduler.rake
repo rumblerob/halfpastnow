@@ -4,18 +4,33 @@ require 'pp'
 require 'htmlentities'
 include REXML
 
+namespace :test do 
+	desc "advance timestamps of events' occurrences"
+	task :advance => :environment do
+		first_occurrence = Occurrence.order("start").first
+		difference_in_days = Date.today - first_occurrence.start.to_date
+		Occurrence.all.each do |occurrence| 
+			occurrence.start = occurrence.start.advance({days: difference_in_days})
+			if(occurrence.end)
+				occurrence.end = occurrence.end.advance({days: difference_in_days})
+			end
+			occurrence.save
+		end
+	end
+end
+
 desc "discard old occurrences and create new ones from recurrences"
 task :update_occurrences => :environment do
 	puts "update_occurrences"
 	old_occurrences = Occurrence.where(:start => (DateTime.new(1900))..(DateTime.now))
 	old_occurrences.each do |occurrence|
+		event = occurrence.event
 		puts "occurrence id: " + occurrence.id.to_s
 		#if occurrence doesn't have a recurrence, then just destroy it
 		#otherwise, try to generate more occurrences from the recurrence.
 			#if it can't, and the occurrence is the only occurrence of the recurrence, then destroy the recurrence
 		if occurrence.recurrence.nil?
 			occurrence.destroy
-			# TODO: delete the event
 		else
 			if (!occurrence.recurrence.gen_occurrences(1) && occurrence.recurrence.occurrences.count == 1)
 				occurrence.recurrence.destroy
@@ -24,8 +39,24 @@ task :update_occurrences => :environment do
 				occurrence.destroy
 			end
 		end
+		if (event.occurrences.length == 0)
+			event.destroy
+		end
 	end
 end
+
+namespace :db do
+
+	desc "load in tags and raw venues"
+	task :init, [:location] => :environment do |t, args|
+		location = args[:location] || "development"
+		system("psql myapp_" + location + " < tags.dump")
+		system("psql myapp_" + location + " < raw_venues_austin360.dump")
+		system("rake api:convert_venues")
+	end
+
+end
+
 
 namespace :api do
 
@@ -138,7 +169,7 @@ namespace :api do
 
 				raw_event = RawEvent.create({
 					:title => html_ent.decode(item.elements["title"].text[from..to]),
-				    :description => html_ent.decode(item.elements["description"].text),
+				    # :description => html_ent.decode(item.elements["description"].text),
 				    :start => d_start,
 				    :end => d_end,
 				    :latitude => item.elements["geo:lat"].text,

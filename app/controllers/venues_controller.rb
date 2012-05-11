@@ -27,10 +27,24 @@ class VenuesController < ApplicationController
     puts  params[:id]
     @venue.clicks += 1
     @venue.save
-    
+    @jsonOccs  = []
+    @jsonRecs = []
+    @occurrences = @venue.events.collect { |event| event.occurrences.select { |occ| occ.start >= DateTime.now }  }.flatten.sort_by { |occ| occ.start }
+    @occurrences.each do |occ|
+      # check if occurrence is instance of a recurrence
+      if occ.recurrence_id.nil?
+        @jsonOccs << occ
+      else
+        if @jsonRecs.index(occ.recurrence).nil?
+          @jsonRecs << occ.recurrence
+        end
+      end
+    end
+    puts "jsonrecs:"
+    pp @jsonRecs
+
     respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @venue.to_json(:include => { :events => { :include => :occurrences }} ) }
+      format.json { render json: { :occurrences => @jsonOccs.to_json(:include => :event), :recurrences => @jsonRecs.to_json(:include => :event), :venue => @venue.to_json } } 
     end
   end
 

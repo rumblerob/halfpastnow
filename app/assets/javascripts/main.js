@@ -43,19 +43,16 @@ $(function() {
 
     $(this).parent().parent().find('.custom-select').removeClass('selected');
     $(this).parent().parent().find('.custom-select:nth-child(' + ($(this).index() + 1) +  ')').addClass('selected');
-
-    if($(this).hasClass('custom-radio'))
-      $(this).siblings('.custom-select').show();
-    else
-      $(this).siblings('.custom-select').hide();
   });
 
   $('#content .sidebar .inner .filter.price span').click(toggleSelection);
   $('#content .sidebar .inner .filter.day span').click(toggleSelection);
+  $('#content .main .inner .header .sort span').click(radioSelection);  
 
   $('#content .sidebar .inner .filter.price span').click(filterChange);
   $('#content .sidebar .inner .filter.day span').click(filterChange);
   $('#content .sidebar .inner .filter.date .filters span').click(filterChange);
+  $('#content .main .inner .header .sort span').click(filterChange);  
 
   $('#content .sidebar .inner .filter.date .date ').datetimepicker({
     ampm: true,
@@ -76,7 +73,7 @@ $(function() {
   
   $(".mode .window .menu li").click(function() {
     var index = $(this).index();
-    $(this).parent().children("li").removeClass("selected");
+    $(this).siblings().removeClass("selected");
     $(this).addClass("selected");
     $(this).parent().parent().children("div").removeClass("selected");
     $(this).parent().parent().children("div").eq(index).addClass("selected");
@@ -97,7 +94,7 @@ $(function() {
   $(window).resize(lockMap);
 
   // oh god what a grody hack. TODO: find out why this happens and fixitfixitfixit
-  $('#content .main .inner .events').on("click", ".linkto", loadModal);
+  $('#content .main .inner .events, .venue.mode .events').on("click", ".linkto", loadModal);
   $(".window .linkto").click(loadModal);
 
   mapOffset = $("#map").offset().top;
@@ -105,8 +102,7 @@ $(function() {
 
 var mapOffset;
 
-var hours = ['midnight','1 am','2 am','3 am','4 am','5 am','6 am','7 am','8 am','9 am','10 am','11 am','noon',
-                     '1 pm','2 pm','3 pm','4 pm','5 pm','6 pm','7 pm','8 pm','9 pm','10 pm','11 pm','midnight',];
+var hours = ['midnight','1 am','2 am','3 am','4 am','5 am','6 am','7 am','8 am','9 am','10 am','11 am','noon','1 pm','2 pm','3 pm','4 pm','5 pm','6 pm','7 pm','8 pm','9 pm','10 pm','11 pm','midnight'];
 
 var day_of_week = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 
@@ -132,7 +128,8 @@ var filter = {
   longMin: null,
   longMax: null,
   offset: 0,
-  search: null
+  search: null,
+  sort: 0
 };
 
 var boundsChangedFlag = false;
@@ -175,23 +172,18 @@ function placeMarker(lat, long) {
   var marker = new google.maps.Marker({ //MarkerWithLabel({
     map: map,
     position: new google.maps.LatLng(lat,long),
-    icon: "/assets/marker.png",
-    index: (markers.length + 1) //,
-    //labelContent: (markers.length + 1),
-    //labelAnchor: new google.maps.Point(8, 34),
-    //labelClass: "markerLabel" // the CSS class for the label
+    icon: "/assets/markers/marker_" + (i + 1) + ".png",
+    index: i + 1
   });
 
   google.maps.event.addListener(marker, 'mouseover', function() {
-    marker.setIcon("/assets/marker_hover.png");
-    //marker.set("labelStyle", { color: "#FFFFFF" });
+    marker.setIcon("/assets/markers/marker_hover_" + marker.index +  ".png");
     $("#content .main .inner .events LI:nth-child(" + marker.index + ")").addClass("hover");
     markers[i].foo = "bar";
   });
 
   google.maps.event.addListener(marker, 'mouseout', function() {
-    marker.setIcon("/assets/marker.png");
-    //marker.set("labelStyle", {});
+    marker.setIcon("/assets/markers/marker_" + marker.index + ".png");
     $("#content .main .inner .events LI:nth-child(" + marker.index + ")").removeClass("hover");
   });
 
@@ -229,7 +221,6 @@ function updateFilter() {
     filter.tags.push(selectedTags[i].id);
   }
 
-
   switch ($(".filter.date .filters .selected").index()) {
     case 0:
       filter.start = Date.today().add({hours:$(".today.time-range").slider("values",0)});
@@ -254,6 +245,8 @@ function updateFilter() {
   $('#content .sidebar .inner .filter.price span.selected').each(function () {
     filter.price.push($(this).index());
   });
+
+  filter.sort = $("#content .main .inner .header .sort span.selected").index();
 }
 
 // this gets called on infinite scroll and on filter changes
@@ -282,29 +275,33 @@ function pullEvents() {
     query += "&tags=" + filter.tags.reduce(function(a,b) { return a + "," + b; },"").substring(1);
   if(filter.offset)
     query += "&offset=" + filter.offset;
-  
-  if(query != "")
-    query = query.substring(1);
+  if(filter.sort)
+    query += "&sort=" + filter.sort;
 
-  $.getJSON("/events/find?" + query, function (events) {
-    console.log("http://localhost:3000/events/find?" + query);
-    console.log(events);
+  loading('show');
+  $.getJSON("/events/index?format=json" + query, function (events) {
     var locations = [];
     for(var i in events) {
       var start = Date.parse(events[i].occurrences[0].start.substr(0,19));
       var li = $($('#content .main .inner .events-seed li:last-child').clone().wrap('<ul>').parent().html());
       li.find(".name").attr("href", events[i].id);
       li.find(".index").html(parseInt(i) + 1);
-      li.find(".mod").html(start.toString("MM/dd"));
+      li.find(".mod").html(start.toString("MMMdd").toUpperCase());
       li.find(".day").html(day_of_week[events[i].occurrences[0].day_of_week]);
       li.find(".time").html(start.toString("hh:mmtt").toLowerCase());
       li.find(".one .name").html(events[i].title);
       li.find(".one .venue").html(events[i].venue.name);
       li.find(".one .venue").attr("href",events[i].venue_id);
-      li.find(".one .description").html(events[i].description);
-      console.log(events[i].occurrences[0]);
+      if(events[i].price != null) 
+      {
+        if(events[i].price != 0)
+          li.find(".one .description").html("<span ><strong>$" + parseFloat(events[i].price).toFixed(2) + "</strong></span> " + events[i].description);
+        else 
+          li.find(".one .description").html("<span ><strong>FREE</strong></span> " + events[i].description);
+      } else { 
+        li.find(".one .description").html(events[i].description);
+      }
       li.prependTo('#content .main .inner .events-seed');
-
       locations.push({lat: events[i].venue.latitude, long: events[i].venue.longitude});
     }
 
@@ -315,7 +312,28 @@ function pullEvents() {
     $('#content .main .inner .events-seed li:not(:last-child)').each(function() {
       $(this).prependTo('#content .main .inner .events');
     });
+    loading('hide');
   });
+}
+
+function loading(command) {
+  if (command === 'show') {
+    var top = $('.main .inner .events').scrollTop();
+    console.log("top: " + top);
+    var bottom = $('.main .inner .events').height() - Math.max(0,$('.main .inner .events').height() + $('.main .inner .events').offset().top - $(window).height() - $(window).scrollTop());
+    console.log("bottom: " + bottom);
+    var y = (top + bottom) / 2 - 33;
+    var x = $('.main .inner .events').width() / 2 - 33;
+    $('.main .inner .header, .main .inner .events').css('opacity','.5');
+    if(y > 0) {
+      $('#loading').css('top', y + 'px');
+      $('#loading').css('left', x + 'px');
+      $('#loading').show();
+    }
+  } else if (command === 'hide') {
+    $('.main .inner .header, .main .inner .events').css('opacity','1');
+    $('#loading').hide();
+  }
 }
 
 function toggleSelection() {
@@ -329,7 +347,10 @@ function toggleSelection() {
   }
 }
 
-
+function radioSelection() {
+  $(this).siblings('span').removeClass('selected');
+  $(this).addClass('selected');
+}
 
 function lockMap() {
   if($("#body").scrollTop() >= mapOffset) {
@@ -366,6 +387,12 @@ function demodal() {
   modal();
 }
 
+function to_ordinal(num) {
+   
+    var ordinal = ["th","st","nd","rd","th","th","th","th","th","th"] ;
+    return num.toString() + ordinal[num%10];
+}
+
 function modal(thing) {
   if(!thing) {
     $('.mode').hide();
@@ -378,7 +405,6 @@ function modal(thing) {
       start = new Date(event.occurrences[0].start);
       $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
       $('.mode.event .time.two').html(start.toString("h:mmtt"));
-      console.log(event.price);
       $('.mode.event h1').html(event.title);
       $('.mode.event .venue a').html(event.venue.name);
       $('.mode.event .venue a').attr("href", event.venue.id);
@@ -392,17 +418,86 @@ function modal(thing) {
       $('.mode.event').show();
     });
   } else {
-    $.getJSON('/venues/show/' + thing.id + '.json', function(venue) {
+    $.getJSON('/venues/show/' + thing.id + '.json', function(venueInfo) {
+      venue = $.parseJSON(venueInfo.venue);
+      recurrences = $.parseJSON(venueInfo.recurrences);
+      occurrences = $.parseJSON(venueInfo.occurrences);
+      var week = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] ;
       
+      var li;
+      $('.venue.mode .overlay .window .inner .menu .selected .events').empty();
+      
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:not(:first-child)').each(function() {
+        $(this).remove();
+      });
+    
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
+        $(this).remove();
+      });
+      console.log(recurrences);
+      // For recurrences
+      if(recurrences.length > 0) {
+        for (var i in recurrences) {
+          var event = recurrences[i].event;
+          var startTime = Date.parse(recurrences[i].start.substr(0,19));
+          
+          var mod = "EVERY " + ((recurrences[i].every_other == 0) ? "" : ((recurrences[i].every_other == 1) ? "OTHER" : to_ordinal(recurrences[i].every_other)));
+          var day = (recurrences[i].day_of_week != null && recurrences[i].week_of_month != null) ? 
+            "<sup>" + to_ordinal(recurrences[i].week_of_month) + "</sup> " + day_of_week[recurrences[i].day_of_week] :
+            ((recurrences[i].day_of_month != null) ? 
+              "<sup class='day-of-month'>" + to_ordinal(recurrences[i].day_of_month) + "</sup>" :
+              ((recurrences[i].day_of_week != null) ? 
+                day_of_week[recurrences[i].day_of_week] : 
+                "DAY"));
+          var time = startTime.toString("hh:mmtt").toLowerCase();
+          
+          li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:last-child').clone().wrap('<ul>').parent().html());
+          li.addClass("recurrence");
+          li.find(".mod").html(mod);
+          li.find(".day").html(day);
+          li.find(".time").html(time);
+          li.find(".name").attr("href", event.id);
+          li.find(".name").html(event.title);
+          li.find(".one .description").html(event.description);
+          li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed1');
+        }
+      
+        $('.venue.mode .overlay .window .inner .menu .selected .events-seed1 li:not(:first-child)').each(function() {
+          $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
+        });
+      }
+
+      // For occurrences
+      if(occurrences.length > 0) {
+        for (var i in occurrences){
+          var event = occurrences[i].event;
+          var startTime = Date.parse(occurrences[i].start.substr(0,19));
+          var dateString = startTime.toString("MMMdd").toUpperCase();
+          
+          li=$($('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:last-child').clone().wrap('<ul>').parent().html());
+          li.find(".mod").html(dateString);
+          li.find(".day").html(day_of_week[occurrences[i].day_of_week]);
+          li.find(".time").html(startTime.toString("hh:mmtt").toLowerCase());
+          li.find(".name").attr("href", event.id);
+          li.find(".name").html(event.title);
+          li.find(".one .description").html(event.description);
+          li.appendTo('.venue.mode .overlay .window .inner .menu .selected .events-seed2');
+        }
+        
+        $('.venue.mode .overlay .window .inner .menu .selected .events-seed2 li:not(:first-child)').each(function() {
+          $(this).appendTo('.venue.mode .overlay .window .inner .menu .selected .events');
+        });
+      }
+
       $('.mode.venue h1').html(venue.name);
       $('.mode.venue .address.one').html(venue.address);
       $('.mode.venue .address.two').html(venue.city + ", " + venue.state + " " + venue.zip);
       $('.mode.venue .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + venue.latitude  +  "," + venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.venue .map-link').attr("href","http://maps.google.com/maps?q=" + venue.latitude  + "," + venue.longitude);
+      $('.mode.venue .description').html(venue.description);
       if (venue.phonenumber=="") { 
         $('.mode.venue .phone span').html("Not Available");
-      } 
-      else {
+      } else {
         $('.mode.venue .phone span').html(venue.phonenumber);
       }
       //$('.mode.venue .url a').html(venue.name);
@@ -415,10 +510,9 @@ function modal(thing) {
           $('.mode.venue .url a').attr("href", venue.url);
         }
       $('.mode').hide();
-      $('.mode.venue').show();
+      $('.mode.venue').show();    
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed2').hide();
+      $('.venue.mode .overlay .window .inner .menu .selected .events-seed1').hide();
     });
   }
-  
-  
 }
-
