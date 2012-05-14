@@ -7,8 +7,7 @@ class Event < ActiveRecord::Base
   accepts_nested_attributes_for :recurrences, :allow_destroy => true
   accepts_nested_attributes_for :venue
   
-  validates_numericality_of :price
-  validates_presence_of :venue_id, :title, :price
+  validates_presence_of :venue_id, :title
   # define_index do
   #       indexes title, :sortable => true
   #       indexes description

@@ -1,11 +1,14 @@
 require 'pp'
 
 class VenuesController < ApplicationController
+  before_filter :authenticate_user!
+  skip_before_filter :authenticate_user!, :only => [:show, :find]
+  
   # GET /venues
   # GET /venues.json
   def index
     
-    authorize! :index, @user, :message => 'Not authorized as an administrator.'
+    # authorize! :index, @user, :message => 'Not authorized as an administrator.'
     
     # @venues = Venue.all
     @venues = RawEvent.where(:submitted => nil, :deleted => nil).collect { |raw_event| raw_event.raw_venue ? raw_event.raw_venue.venue : nil }.compact
@@ -128,8 +131,8 @@ class VenuesController < ApplicationController
               # puts index
               # puts params_event[1]["occurrences_attributes"][index.to_s]
               params_event[1]["occurrences_attributes"].delete(index.to_s)
-            else
-              # params_occurrence[1]["day_of_week"] = Date.parse(params_occurrence[1]["start(1i)"] + "-" + params_occurrence[1]["start(2i)"] + "-" + params_occurrence[1]["start(3i)"]).wday
+            elsif params_occurrence[1]["end(4i)"] == "" || params_occurrence[1]["end(5i)"] == ""
+              params_occurrence[1]["end(1i)"] = params_occurrence[1]["end(2i)"] = params_occurrence[1]["end(3i)"] = params_occurrence[1]["end(4i)"] = params_occurrence[1]["end(5i)"] = ""
             end
           end
         end
@@ -139,8 +142,8 @@ class VenuesController < ApplicationController
             if params_recurrence[1]["start(4i)"] == "" || params_recurrence[1]["start(5i)"] == ""  
               # puts "deleting recurrence"
               params_recurrence.shift(2)
-            else
-              # params_recurrence[1]["day_of_week"] = Date.parse(params_recurrence[1]["start(1i)"] + "-" + params_recurrence[1]["start(2i)"] + "-" + params_recurrence[1]["start(3i)"]).wday
+            elsif params_recurrence[1]["end(4i)"] == "" || params_recurrence[1]["end(5i)"] == ""
+              params_recurrence[1]["end(1i)"] = params_recurrence[1]["end(2i)"] = params_recurrence[1]["end(3i)"] = params_recurrence[1]["end(4i)"] = params_recurrence[1]["end(5i)"] = ""
             end
           end
         end
@@ -148,10 +151,10 @@ class VenuesController < ApplicationController
       end
     end
 
-    puts params[:venue]
+    pp params[:venue]
 
     respond_to do |format|
-      if @venue.update_attributes(params[:venue])
+      if @venue.update_attributes!(params[:venue])
         format.html { redirect_to :action => :edit, :id => @venue.id, :notice => 'yay' }
         format.json { head :ok }
       else

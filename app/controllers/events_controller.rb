@@ -19,11 +19,6 @@ class ZoomDelta
   LowLongitude = 0.20942688 / 2
 end
 
-def empty? thing
-  return (thing.nil? || thing == "")
-end
-
-
 class EventsController < ApplicationController
 
 def index
@@ -124,7 +119,7 @@ def index
       end
     end
 
-    if(empty?(params[:sort]) || params[:sort] == 0)
+    if(params[:sort].nil? || params[:sort] == "" || params[:sort] == 0)
       @events = @events.sort_by do |event| 
         event.score
       end.reverse

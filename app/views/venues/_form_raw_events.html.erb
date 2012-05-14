@@ -1,64 +1,8 @@
-
-<style>
-
-    .error {
-        border: 1px solid red;
-        color:red;
-    }
-</style>
 <script type="text/javascript">
-    var validators = [];
-	$(document).ready(function(){
-	
-<% @venue.raw_events.each do |raw_event| %>
-		
-        validators[<%= raw_event.id %>] = $("form#<%= raw_event.id %>_new_event").validate({
-            rules: {
-                title: {required:true},
-                price: {required:true},
-            },
-            message: {
-                title: {
-                    required: 'Title can not be empty.'
-                },
-                price: {
-                    required: 'Price can not be empty.'
-                },
-
-            },
-
-			submitHandler: function(form) {
-				// form.submit();
-			} 	
-        }); 
-
-		$('form#<%= raw_event.id %>_new_event').submit(function() { 
-        	// inside event callbacks 'this' is the DOM element so we first 
-        	// wrap it in a jQuery object and then invoke ajaxSubmit 
-        	$(this).ajaxSubmit({beforeSubmit: 
-											function(){
-												return validators[<%= raw_event.id %>].numberOfInvalids() == 0;
-											},
-							   success:
-											function(){
-												alert("yay");
-											}
-			}); 
-			// {success:function(){alert("yay");}}
-        	return false; 
-		});
-
-		/*$('form#<%= raw_event.id %>_new_event').submit(function() { 
-		        // inside event callbacks 'this' is the DOM element so we first 
-		        // wrap it in a jQuery object and then invoke ajaxSubmit 
-		        $(this).ajaxSubmit({success:function(){alert("yay");}}); 
-
-		        // !!! Important !!! 
-		        // always return false to prevent standard browser submit and page navigation 
-		        return false; 
-		});*/
-
-<% end %>
+    $(document).ready(function(){
+	    <% @venue.raw_events.each do |raw_event| %>
+	    	generateValidator("#new_event_<%= raw_event.id %>");
+	    <% end %>
     });
 </script>
 
@@ -68,7 +12,7 @@
 <% @venue.raw_events.each do |raw_event| %>
 	<% event = @venue.events.build(:title => raw_event.title, :description => raw_event.description) 
 	   occurrence = Occurrence.new(:start => raw_event.start, :end => raw_event.end) %>
-	<%= form_for event, :url => "/venues/fromRaw/" + @venue.id.to_s, :namespace => raw_event.id.to_s do |e| %>
+	<%= form_for event, :url => "/venues/fromRaw/" + @venue.id.to_s, :html => { :id => "new_event_" + raw_event.id.to_s } do |e| %>
 		<% @iStrName = "event[tag_ids][]" %>
     	<% @iStrId = "event_tag_ids_" %>
 		<%= hidden_field_tag :raw_event_id, raw_event.id %>
@@ -79,15 +23,15 @@
 			</div>
 			<div class="field">
 			  <%= e.label :title %>
-			  <%= e.text_field :title %>
+			  <%= e.text_field :title, :class => "required" %>
 			</div>
 			<div class="field">
 			  <%= e.label :description %>
 			  <%= e.text_area :description %>
 			</div>
-			<div class="field" class="required" minlength="2">
+			<div class="field" minlength="2">
 			  <%= e.label :price %>
-			  <%= e.text_field :price, :class => "price required"%>
+			  <%= e.text_field :price %>
 			</div>
 			<div class="tags field">
 				<label>Tags</label>
@@ -111,7 +55,7 @@
 					<div class="new-occurrence">
 						<%= e.fields_for :occurrences, occurrence do |o| %>
 						    <div class="field">
-						    	<%= o.label :start %><%= o.datetime_select :start, :prompt => true, :ampm => true %>
+						    	<%= o.label :start %><%= o.datetime_select :start, {:prompt => true, :ampm => true}, {:class => "required"} %>
 						    </div>
 						    <div class="field">
 						    	<%= o.label :end %><%= o.datetime_select :end, :prompt => true, :ampm => true %>

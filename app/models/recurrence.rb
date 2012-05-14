@@ -10,6 +10,8 @@ class Recurrence < ActiveRecord::Base
   has_many :occurrences, :dependent => :destroy
   belongs_to :event
 
+  validates_presence_of :start
+
   def create
     puts "generating occurrences (create)"
     if (self.occurrences.length == 0)
