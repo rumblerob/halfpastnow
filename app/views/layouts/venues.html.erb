@@ -16,14 +16,17 @@
 <script type="text/javascript">
   var validators = {};
 
-  function generateValidator(selector) {
-    validators[selector] = $(selector).validate(
-          { submitHandler: function(form) {
-            // do nothing
-            } 
-        }); 
+  function generateValidator(selector, options) {
+    options = options || {};
 
-    $(selector).submit(function() { 
+    if(options["ajax"] == true) {
+      validators[selector] = $(selector).validate(
+            { submitHandler: function(form) {
+              // do nothing
+              } 
+          }); 
+
+      $(selector).submit(function() { 
       var obj = $(this);
             obj.ajaxSubmit({
                 beforeSubmit: function() {
@@ -35,6 +38,9 @@
             }); 
             return false; 
       });
+    } else {
+      validators[selector] = $(selector).validate();
+    }
   }
 </script>
 <%= yield %>

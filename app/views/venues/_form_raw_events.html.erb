@@ -1,7 +1,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
 	    <% @venue.raw_events.each do |raw_event| %>
-	    	generateValidator("#new_event_<%= raw_event.id %>");
+	    	generateValidator("#new_event_<%= raw_event.id %>",{"ajax":true});
 	    <% end %>
     });
 </script>
