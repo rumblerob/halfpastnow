@@ -43,21 +43,14 @@
 <% @parentTags = Tag.all(:conditions => {:parent_tag_id => nil}) %>
 
 <%= form_for @venue, :url => @venue.id ? "/venues/update/" + @venue.id.to_s : "/venues/create", :html => { :id => "venue_settings" } do |f| %>
-  <% if @venue.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(@venue.errors.count, "error") %> prohibited this venue from being saved:</h2>
-
-      <ul>
-      <% @venue.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
    <div class="main settings">
     <div class="field">
       <%= f.label :name %>
       <%= f.text_field :name, :class => 'required' %>
+    </div>
+    <div class="field">
+      <%= f.label :url %>
+      <%= f.text_field :url %>
     </div>
     <div class="field">
       <%= f.label :description %>

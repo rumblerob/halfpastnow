@@ -403,14 +403,15 @@ function modal(thing) {
     $.getJSON('/events/show/' + thing.id + '.json', function(event) {
 
       start = new Date(event.occurrences[0].start);
+      end = event.occurrences[0].end ? new Date(event.occurrences[0].end) : null;
       $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
-      $('.mode.event .time.two').html(start.toString("h:mmtt"));
+      $('.mode.event .time.two').html((start.toString("h:mmtt") + (end ? " to " + end.toString('h:mmtt') : "")).toLowerCase());
       $('.mode.event h1').html(event.title);
       $('.mode.event .venue a').html(event.venue.name);
       $('.mode.event .venue a').attr("href", event.venue.id);
       $('.mode.event .address.one').html(event.venue.address);
       $('.mode.event .address.two').html(event.venue.city + ", " + event.venue.state + " " + event.venue.zip);
-      $('.mode.event .price').html(event.price ? "<strong>Price: </strong> <span>$" + parseFloat(event.price).toFixed(2) + "</span>" : "");
+      $('.mode.event .price').html(event.price ? "<strong>Price: </strong> <span>" + (event.price > 0 ? "$" + parseFloat(event.price).toFixed(2) : "FREE") + "</span>" : "");
       $('.mode.event .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + event.venue.latitude  +  "," + event.venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.event .map-link').attr("href","http://maps.google.com/maps?q=" + event.venue.latitude  + "," + event.venue.longitude);
       $('.mode.event .description').html(event.description);
@@ -494,7 +495,7 @@ function modal(thing) {
       $('.mode.venue .address.two').html(venue.city + ", " + venue.state + " " + venue.zip);
       $('.mode.venue .map').attr("src","http://maps.googleapis.com/maps/api/staticmap?size=430x170&zoom=15&maptype=roadmap&markers=color:red%7C" + venue.latitude  +  "," + venue.longitude + "&style=feature:all|hue:0x000001|saturation:-50&sensor=false");
       $('.mode.venue .map-link').attr("href","http://maps.google.com/maps?q=" + venue.latitude  + "," + venue.longitude);
-      $('.mode.venue .description').html(venue.description);
+      $('.mode.venue .menu > .description').html(venue.description);
       if (venue.phonenumber=="") { 
         $('.mode.venue .phone span').html("Not Available");
       } else {

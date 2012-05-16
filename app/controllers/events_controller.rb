@@ -2,13 +2,6 @@ require 'pp'
 require 'open-uri'
 require 'json'
 
-class Price
-  FREE = 0
-  ONE = 5
-  TWO = 10
-  THREE = 25
-end
-
 # brittle as hell, because these have to change if we change the map size, and also if we change locales from Austin.
 class ZoomDelta
   HighLatitude = 0.037808182 / 2

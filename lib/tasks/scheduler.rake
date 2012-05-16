@@ -54,7 +54,12 @@ namespace :db do
 		system("psql myapp_" + location + " < raw_venues_austin360.dump")
 		system("rake api:convert_venues")
 	end
+end
 
+desc "add new user [:email, :password, :username, :firstname, :lastname]"
+task :new_user, [:email, :password, :username, :firstname, :lastname] => :environment do |t, args|
+	@user = User.new({:email => args[:email], :password => args[:password], :password_confirmation => args[:password], :username => args[:username], :firstname => args[:firstname], :lastname => args[:lastname]})
+	@user.save
 end
 
 
