@@ -409,9 +409,8 @@ function modal(thing) {
   
   if(thing.type === "event") {
     $.getJSON('/events/show/' + thing.id + '.json', function(event) {
-
-      start = new Date(event.occurrences[0].start.substr(0,19));
-      end = event.occurrences[0].end ? new Date(event.occurrences[0].end) : null;
+      start = Date.parse(event.occurrences[0].start.substr(0,19));
+      end = event.occurrences[0].end ? Date.parse(event.occurrences[0].end.substr(0,19)) : null;
       $('.mode.event .time.one').html(start.toString("dddd, MMMM d"));
       $('.mode.event .time.two').html((start.toString("h:mmtt") + (end ? " to " + end.toString('h:mmtt') : "")).toLowerCase());
       $('.mode.event h1').html(event.title);
